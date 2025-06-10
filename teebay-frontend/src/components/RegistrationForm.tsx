@@ -9,19 +9,21 @@ import {
   Center, Grid, Anchor, Text
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { Link } from 'react-router-dom';
 
-export function RegisterForm() {
+export function RegistrationForm() {
   const form = useForm({
     initialValues: {
-      username: '',
+      firstName:'',
+      lastName:'',
+      address:'',
       email: '',
+      phoneNumber:'',
       password: '',
       confirmPassword: '',
     },
 
     validate: {
-      username: (value) =>
-        value.length < 3 ? 'Username must be at least 3 characters' : null,
       email: (value) =>
         /^\S+@\S+$/.test(value) ? null : 'Invalid email address',
       password: (value) =>
@@ -37,23 +39,23 @@ export function RegisterForm() {
   };
 
   return (
-    <Center h="100vh">
+    <Center >
         <Container size={420} my={40}>
             <Center>
                 <Title>SIGN UP</Title>
             </Center>
         
-        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Paper withBorder shadow="md" p={30} mt={10} radius="md">
             <form onSubmit={form.onSubmit(handleSubmit)}>
             <Grid>
-                <Grid.Col span={6}>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                     <TextInput
                     label="First Name"
                     placeholder="First Name"
                     {...form.getInputProps('firstName')}
                     />
                 </Grid.Col>
-                <Grid.Col span={6}>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                     <TextInput
                     label="Last Name"
                     placeholder="Last Name"
@@ -68,14 +70,14 @@ export function RegisterForm() {
                 {...form.getInputProps('address')}
             />
             <Grid>
-                <Grid.Col span={6}>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                     <TextInput
                     label="Email"
                     placeholder="Email"
                     {...form.getInputProps('email')}
                     />
                 </Grid.Col>
-                <Grid.Col span={6}>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                     <TextInput
                     label="Phone Number"
                     placeholder="Phone Number"
@@ -102,8 +104,8 @@ export function RegisterForm() {
             </Group>
             <Text ta="center" mt="md" size="sm">
                 Already have an account?{' '}
-                <Anchor href="/login" size="sm">
-                    Sign in
+                <Anchor component={Link} to="/"  size="sm">
+                    Sign In
                 </Anchor>
             </Text>
             </form>
@@ -116,4 +118,4 @@ export function RegisterForm() {
   );
 }
 
-export default RegisterForm
+export default RegistrationForm

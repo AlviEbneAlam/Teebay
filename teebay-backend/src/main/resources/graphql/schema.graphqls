@@ -1,0 +1,54 @@
+type Query {
+  _dummy: String
+}
+
+type Mutation {
+  register(userInfo: RegisterInput!): RegisterResponse
+  login(jwtRequest: JwtRequestInput): JwtResponse
+  addProduct(input: AddProductInput!): AddProductResponse!
+}
+
+input RegisterInput {
+  firstName: String!
+  lastName: String!
+  address: String!
+  email: String!
+  phoneNumber: String!
+  password: String!
+}
+
+type RegisterResponse {
+  id: String!
+  email:String!
+  firstName: String!
+}
+
+input JwtRequestInput {
+  email: String!
+  password: String!
+}
+
+type JwtResponse {
+  message: String!
+  jwtToken: String!
+}
+
+input AddProductInput {
+  title: String!
+  categoriesList: [String!]!
+  description: String!
+  listedFor: String!
+  sellingPrice: Float!
+  rent: Float!
+  typeOfRent: String!
+  rentBufferPeriod: String!
+}
+
+
+type AddProductResponse {
+  statusCode: String!
+  statusMessage: String!
+}
+
+
+

@@ -5,7 +5,8 @@ type Query {
 type Mutation {
   register(userInfo: RegisterInput!): RegisterResponse
   login(jwtRequest: JwtRequestInput): JwtResponse
-  addProduct(input: AddProductInput!): AddProductResponse!
+  addProduct(addProductRequest: AddProductInput!): AddProductResponse!
+  editProduct(productId: ID!, editRequest: AddProductInput!): AddProductResponse!
 }
 
 input RegisterInput {
@@ -38,10 +39,10 @@ input AddProductInput {
   categoriesList: [String!]!
   description: String!
   listedFor: String!
-  sellingPrice: Float!
-  rent: Float!
-  typeOfRent: String!
-  rentBufferPeriod: String!
+  sellingPrice: Float
+  rent: Float
+  typeOfRent: String
+  rentBufferPeriod: String
 }
 
 

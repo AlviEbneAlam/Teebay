@@ -10,8 +10,17 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
+import { LOGIN_USER } from '../graphql/mutations';
+import { useAuth } from '../auth/useAuth';  
 
 export function SignIn() {
+
+  const navigate = useNavigate();
+  const [loginMutation] = useMutation(LOGIN_USER);
+  const { login } = useAuth();
+
    const form = useForm({
     initialValues: {
       email: '',
@@ -26,9 +35,25 @@ export function SignIn() {
     },
   });
 
-  const handleSubmit = (values: typeof form.values) => {
-    console.log('Submitted values:', values);
-    // TODO: Send data to your backend API
+  const handleSubmit = async (values: typeof form.values) => {
+    try {
+      const { data } = await loginMutation({
+        variables: {
+          email: values.email,
+          password: values.password
+        }
+      });
+
+      if (data?.login?.jwtToken) {
+        login(data.login.jwtToken); 
+        console.log('Successful login');
+        navigate('/LoggedInMessage');
+      } else {
+        console.error('Login failed:', data?.login?.message);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -47,10 +72,10 @@ export function SignIn() {
                     {...form.getInputProps('email')}
             />
             <PasswordInput
-                label="Password"
-                placeholder="Password"
-                mt="md"
-                {...form.getInputProps('confirmPassword')}
+              label="Password"
+              placeholder="Password"
+              mt="md"
+              {...form.getInputProps('password')} 
             />
             <Group justify="space-between" mt="lg">
                 <Button type="submit" fullWidth>

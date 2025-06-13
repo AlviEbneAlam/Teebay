@@ -10,8 +10,14 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Link } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
+import { LOGIN_USER } from '../graphql/mutations';
+
 
 export function RegistrationForm() {
+
+  const [registerUser] = useMutation(LOGIN_USER);
+
   const form = useForm({
     initialValues: {
       firstName:'',
@@ -34,9 +40,20 @@ export function RegistrationForm() {
   });
 
   const handleSubmit = (values: typeof form.values) => {
-    console.log('Submitted values:', values);
-    // TODO: Send data to your backend API
+    // Remove confirmPassword before sending to backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...input } = values;
+
+    registerUser({ variables: { input } })
+      .then((response) => {
+        console.log('User registered:', response.data.register);
+        // Optionally redirect or show success message here
+      })
+      .catch((err) => {
+        console.error('Registration error:', err);
+      });
   };
+
 
   return (
     <Center >

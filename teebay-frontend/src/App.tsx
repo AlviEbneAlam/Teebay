@@ -4,7 +4,7 @@ import {SignIn} from './components/SignIn';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
-import { LoggedInMessage } from './components/LoggedInMessage';
+import { MyProducts } from './components/MyProducts';
 import {StepperForm} from './components/Form/StepperForm'
 import '@mantine/core/styles.css';
 import BaseLayout from './components/layout/BaseLayout';
@@ -22,7 +22,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <BaseLayout>
-                    <LoggedInMessage />
+                    <MyProducts />
                   </BaseLayout>
                 </ProtectedRoute>
               }

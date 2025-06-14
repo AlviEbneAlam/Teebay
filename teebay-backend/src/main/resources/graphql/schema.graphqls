@@ -1,5 +1,5 @@
 type Query {
-  _dummy: String
+  productsByUserPaginated(page: Int!, size: Int!): ProductPage!
 }
 
 type Mutation {
@@ -38,17 +38,34 @@ input AddProductInput {
   title: String!
   categoriesList: [String!]!
   description: String!
-  listedFor: String!
   sellingPrice: Float
   rent: Float
   typeOfRent: String
-  rentBufferPeriod: String
 }
 
 
 type AddProductResponse {
   statusCode: String!
   statusMessage: String!
+}
+
+type ProductPage {
+  products: [Product!]!
+  totalPages: Int!
+  totalElements: Int!
+  currentPage: Int!
+}
+
+type Product {
+  id: ID!
+  title: String!
+  description: String
+  categories: [String!]!
+  sellingPrice: Float!
+  rent: Float
+  typeOfRent: String
+  availabilityStatus: String
+  createdAt: String
 }
 
 

@@ -17,17 +17,13 @@ public record AddProductRequest(
         @Size(max = 1000, message = "Description can be at most 1000 characters")
         String description,
 
-        @NotBlank(message = "listedFor is required (BUY, RENT, BOTH)")
-        String listedFor,
+        @NotBlank(message = "Type of rent  is required (PER_HOUR, PER_DAY)")
+        String typeOfRent,
 
         @PositiveOrZero(message = "Selling price must be zero or more")
         double sellingPrice,
 
         @PositiveOrZero(message = "Rent must be zero or more")
-        double rent,
-
-        String typeOfRent,
-
-        String rentBufferPeriod
+        double rent
 ) {
 }

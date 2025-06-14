@@ -11,12 +11,12 @@ import {
 import { useForm } from '@mantine/form';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
-import { LOGIN_USER } from '../graphql/mutations';
+import { REGISTER_USER } from '../graphql/mutations';
 
 
 export function RegistrationForm() {
 
-  const [registerUser] = useMutation(LOGIN_USER);
+  const [registerUser] = useMutation(REGISTER_USER);
 
   const form = useForm({
     initialValues: {
@@ -40,7 +40,6 @@ export function RegistrationForm() {
   });
 
   const handleSubmit = (values: typeof form.values) => {
-    // Remove confirmPassword before sending to backend
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...input } = values;
 

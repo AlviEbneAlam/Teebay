@@ -17,7 +17,7 @@ public class UserController {
     }
 
     @MutationMapping
-    public RegisterResponse register(@Argument UserInfoRec userInfoRec) {
-        return authService.register(userInfoRec);
+    public RegisterResponse register(@Argument UserInfoRec userInfo) {
+        return authService.register(userInfo);
     }
 }

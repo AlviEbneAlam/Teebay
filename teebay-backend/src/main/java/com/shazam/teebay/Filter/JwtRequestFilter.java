@@ -55,7 +55,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
 			String body = new String(cachedRequest.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
-			if (body.contains("login")) {
+			if (body.contains("login") || body.contains("register")) {
 				filterChain.doFilter(cachedRequest, response);
 				return;
 			}

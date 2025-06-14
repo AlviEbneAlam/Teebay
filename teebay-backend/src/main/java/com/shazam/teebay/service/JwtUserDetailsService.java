@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -25,23 +26,21 @@ public class JwtUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		log.info("Username in loadUserByUsername method: {}", username);
 
-		log.info("Username in loadUserByUsername class is: {}",username);
-		UserInfo userInfo=null;
+		try {
+			Optional<UserInfo> userInfo = userRepository.findByEmail(username);
 
-		try{
-			 userInfo = userRepository.findByEmail(username);
-		}
-		catch(Exception ex){
-			log.info("Exception occurred while fetching user data from db");
-			log.info("Exception for username: {}, : {}", username,ex.getLocalizedMessage());
-		}
+			if (userInfo.isEmpty()) {
+				log.warn("User not found in database for username: {}", username);
+				throw new UsernameNotFoundException("User not found with username: " + username);
+			}
 
-		if (userInfo!=null) {
-			return new User(userInfo.getEmail(), userInfo.getPassword(),
-					new ArrayList<>());
-		} else {
-			throw new UsernameNotFoundException("User not found with username: " + username);
+			UserInfo user = userInfo.get();
+			return new User(user.getEmail(), user.getPassword(), new ArrayList<>());
+		} catch (Exception ex) {
+			log.error("Exception occurred while fetching user data from database for username: {}", username, ex);
+			throw new UsernameNotFoundException("Unable to load user due to internal error.");
 		}
 	}
 

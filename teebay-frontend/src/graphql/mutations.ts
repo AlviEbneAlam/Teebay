@@ -18,3 +18,32 @@ export const REGISTER_USER = gql`
     }
   }
 `;
+
+export const ADD_PRODUCT = gql`
+  mutation AddProduct($addProductRequest: AddProductInput!) {
+    addProduct(addProductRequest: $addProductRequest) {
+      statusCode
+      statusMessage
+    }
+  }
+`;
+
+export const PRODUCTS_BY_USER_PAGINATED = gql`
+  query ProductsByUserPaginated($page: Int!, $size: Int!) {
+    productsByUserPaginated(page: $page, size: $size) {
+      products {
+        id
+        title
+        categories
+        sellingPrice
+        rent
+        typeOfRent
+        description
+        createdAt
+      }
+      totalPages
+      totalElements
+      currentPage
+    }
+  }
+`;

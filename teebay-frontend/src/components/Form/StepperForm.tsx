@@ -6,48 +6,77 @@ import {
   Group,
   TextInput,
   Box, Stack,
-  rem, Select, Textarea, Flex, Paper, Text
+  rem, Select, Textarea, Flex, Paper, Text, MultiSelect
 } from '@mantine/core';
+import { useMutation } from '@apollo/client';
+import { ADD_PRODUCT } from '../../graphql/mutations';
+import { useAuth } from '../../auth/useAuth';
+
 
 export function StepperForm() {
   const [active, setActive] = useState(0);
+  const [addProduct] = useMutation(ADD_PRODUCT);
+  const { token } = useAuth();
 
   const [formValues, setFormValues] = useState({
     title: '',
-    category: '',
+    category: [] as string[],
     description: '',
     price: '',
     rent: '',
-    buyerOption: '',
+    rentType: '',
   });
 
-  const handleChange = (field: string, value: string) => {
-    setFormValues(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: string | string[]) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
   };
 
-   const isStepValid = () => {
+  const submitProduct = async () => {
+    try {
+      const input = {
+        title: formValues.title,
+        categoriesList: formValues.category,
+        description: formValues.description,
+        sellingPrice: parseFloat(formValues.price),
+        rent: parseFloat(formValues.rent),
+        typeOfRent: formValues.rentType.replace(' ', '_').toUpperCase(),
+      };
+
+      const { data } = await addProduct({
+        variables: { addProductRequest: input },
+        context: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      });
+
+      alert(`Product added! Status: ${data.addProduct.statusMessage}`);
+    } catch (err) {
+      console.error('Submission error', err);
+      alert('Failed to add product');
+    }
+  };
+
+  const isStepValid = () => {
     if (active === 0) return formValues.title.trim().length > 0;
-    if (active === 1) return formValues.category.trim().length > 0;
+    if (active === 1) return formValues.category.length > 0;
     if (active === 2) return formValues.description.trim().length > 0;
     if (active === 3) {
-    const buyerOption = formValues.buyerOption;
-    const hasPrice = formValues.price.trim().length > 0;
-    const hasRent = formValues.rent.trim().length > 0;
+      const {  price, rent, rentType } = formValues;
+      const hasPrice = price.trim().length > 0;
+      const hasRent = rent.trim().length > 0;
+      const hasRentType = rentType.trim().length > 0;
 
-    if (buyerOption === 'Purchase') return hasPrice;
-    if (buyerOption === 'Rent') return hasRent;
-    if (buyerOption === 'Both') return hasPrice && hasRent;
-
-    return false; 
-   }
-    return true; 
+      return hasPrice && hasRent && hasRentType;
+    }
+    return true;
   };
-
 
   const nextStep = () => setActive((current) => (current < 4 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
- return (
+  return (
     <Box maw={600} mx="auto">
       <Stepper active={active} onStepClick={setActive} styles={{ steps: { display: 'none' } }}>
         <Stepper.Step label="Step 1" description="Title" mt="md">
@@ -61,33 +90,23 @@ export function StepperForm() {
               required
               value={formValues.title}
               onChange={(e) => handleChange('title', e.currentTarget.value)}
-              styles={{
-                label: {
-                  fontSize: rem(18),
-                },
-              }}
+              styles={{ label: { fontSize: rem(18) } }}
             />
           </Stack>
         </Stepper.Step>
 
         <Stepper.Step label="Step 2" description="Categories">
           <Stack gap="sm">
-            <Select
-              ta="center"
+            <MultiSelect
               mt="md"
               size="md"
               label="Select Categories"
-              placeholder="Select a Category"
+              placeholder="Select one or more categories"
               data={['Electronics', 'Furniture', 'Home Appliances', 'Sporting Goods', 'Outdoor', 'Toys']}
               required
               value={formValues.category}
-              onChange={(value) => handleChange('category', value || '')}
-              styles={{
-                label: {
-                  fontSize: '1.125rem',
-                  textAlign: 'center',
-                },
-              }}
+              onChange={(value) => handleChange('category', value)}
+              styles={{ label: { fontSize: '1.125rem', textAlign: 'center' } }}
             />
           </Stack>
         </Stepper.Step>
@@ -105,12 +124,7 @@ export function StepperForm() {
               autosize
               value={formValues.description}
               onChange={(e) => handleChange('description', e.currentTarget.value)}
-              styles={{
-                label: {
-                  fontSize: rem(18),
-                  textAlign: 'center',
-                },
-              }}
+              styles={{ label: { fontSize: rem(18), textAlign: 'center' } }}
             />
           </Stack>
         </Stepper.Step>
@@ -126,15 +140,7 @@ export function StepperForm() {
               required
               value={formValues.price}
               onChange={(e) => handleChange('price', e.currentTarget.value)}
-              styles={{
-                label: {
-                  fontSize: rem(18),
-                },
-                input: {
-                  width: rem(200),
-                  margin: '0 auto',
-                },
-              }}
+              styles={{ label: { fontSize: rem(18) }, input: { width: rem(200), margin: '0 auto' } }}
             />
             <TextInput
               ta="center"
@@ -145,68 +151,45 @@ export function StepperForm() {
               required
               value={formValues.rent}
               onChange={(e) => handleChange('rent', e.currentTarget.value)}
-              styles={{
-                label: {
-                  fontSize: rem(18),
-                },
-                input: {
-                  width: rem(150),
-                  margin: '0 auto',
-                },
-              }}
+              styles={{ label: { fontSize: rem(18) }, input: { width: rem(150), margin: '0 auto' } }}
             />
+           
             <Select
-              ta="center"
               mt="md"
               size="sm"
               w={rem(180)}
-              label="Buyer Options"
-              placeholder="Select an Option"
-              data={['Purchase', 'Rent', 'Both']}
-              required
-              value={formValues.buyerOption}
-              onChange={(value) => handleChange('buyerOption', value || '')}
-              styles={{
-                label: {
-                  fontSize: rem(18),
-                  textAlign: 'center',
-                },
-              }}
+              label="Type of Rent"
+              placeholder="Choose rent type"
+              data={['Per Hour', 'Per Day']}
+              value={formValues.rentType}
+              onChange={(value) => handleChange('rentType', value || '')}
+              styles={{ label: { fontSize: rem(18), textAlign: 'center' } }}
             />
           </Flex>
         </Stepper.Step>
 
         <Stepper.Step label="Step 5" description="Confirm">
-        <Paper withBorder p="md" radius="md">
+          <Paper withBorder p="md" radius="md">
             <Stack gap="sm">
-            <Text fw={600} size="lg" ta="center">Summary</Text>
-            <Text>Title: {formValues.title}</Text>
-            <Text>Categories: {formValues.category}</Text>
-            <Text>Description: {formValues.description}</Text>
-            <Text>
-                Price: { '$' }{formValues.price || '-'}{' '}
-            </Text>
-            <Text>
-                Rent: { '$' }{formValues.rent || '-'}{' '}
-                {formValues.rent && formValues.buyerOption === 'Rent' || formValues.buyerOption === 'Both' ? ' per day' : ''}
-            </Text>
+              <Text fw={600} size="lg" ta="center">Summary</Text>
+              <Text>Title: {formValues.title}</Text>
+              <Text>Categories: {formValues.category.join(', ')}</Text>
+              <Text>Description: {formValues.description}</Text>
+              <Text>Price: ${formValues.price || '-'}</Text>
+              <Text>
+               Rent: ${formValues.rent || '-'} {formValues.rentType}
+              </Text>
             </Stack>
-        </Paper>
+          </Paper>
         </Stepper.Step>
       </Stepper>
 
       <Group justify="space-between" mt="xl">
-        <Button variant="default" onClick={prevStep} disabled={active === 0}>
-          Back
-        </Button>
+        <Button variant="default" onClick={prevStep} disabled={active === 0}>Back</Button>
         {active < 4 ? (
-          <Button onClick={nextStep} disabled={!isStepValid()}>
-            Next
-          </Button>
+          <Button onClick={nextStep} disabled={!isStepValid()}>Next</Button>
         ) : (
-          <Button color="green" onClick={() => alert('Submitted!')}>
-            Submit
-          </Button>
+          <Button color="green" onClick={submitProduct}>Submit</Button>
         )}
       </Group>
     </Box>

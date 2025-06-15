@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -35,18 +36,21 @@ public class ProductService {
     private final RentRepository rentRepository;
     private final UserRepository userRepository;
     private final ProductPurchaseRepository purchaseRepository;
+    private final RentBookingsRepository rentBookingsRepository;
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
                           ProductCategoryRepository productCategoryRepository,
                           RentRepository rentRepository, UserRepository userRepository,
-                          ProductPurchaseRepository purchaseRepository) {
+                          ProductPurchaseRepository purchaseRepository,
+                          RentBookingsRepository rentBookingsRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.rentRepository = rentRepository;
         this.userRepository=userRepository;
         this.purchaseRepository=purchaseRepository;
+        this.rentBookingsRepository=rentBookingsRepository;
     }
 
     @Transactional
@@ -171,24 +175,22 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductPageDto getAllProductsByStatus(int page, int size, String status) {
+    public ProductPageDto getAllProductsByStatus(int page, int size) {
 
-        try {
-            ProductState.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new GraphQLValidationException("Invalid availability status"+status);
-        }
+        List<String> statuses = List.of(ProductState.AVAILABLE.name(), ProductState.RENTED.name());
 
         Page<Products> productPage;
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            productPage = productRepository.findAllByAvailabilityStatus(status, pageable);
+            productPage = productRepository.findAllByAvailabilityStatusIn(statuses, pageable);
         } catch (Exception ex) {
-            log.error("Exception while fetching available products: {}", ex.getLocalizedMessage());
-            throw new GraphQLDataProcessingException("Could not fetch available products", ex);
+            log.error("Exception while fetching available and rented products: {}", ex.getLocalizedMessage());
+            throw new GraphQLDataProcessingException("Could not fetch products", ex);
         }
 
-        List<ProductDto> productDTOs = mapToDtoList(productPage.getContent());
+        List<ProductDto> productDTOs = productPage.getContent().stream()
+                .map(product -> mapToProductDto(product, true))
+                .toList();
 
         return new ProductPageDto(
                 productDTOs,
@@ -231,39 +233,9 @@ public class ProductService {
     }
 
     private List<ProductDto> mapToDtoList(List<Products> products) {
-        return products.stream().map(product -> {
-            List<Long> categoryIds = productCategoryRepository.findByProductId(product.getId()).stream()
-                    .map(ProductCategory::getCategoryId)
-                    .toList();
-
-            List<String> categoryNames = categoryIds.stream()
-                    .map(categoryRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(opt -> opt.get().getName())
-                    .toList();
-
-            Double rentPrice = null;
-            String typeOfRent = null;
-            if (product.getRentId() != null) {
-                Rent rent = rentRepository.findById(product.getRentId()).orElse(null);
-                if (rent != null) {
-                    rentPrice = rent.getRentPrice();
-                    typeOfRent = rent.getTypeOfRent().toString();
-                }
-            }
-
-            return new ProductDto(
-                    product.getId(),
-                    product.getTitle(),
-                    product.getDescription(),
-                    categoryNames,
-                    product.getSellingPrice(),
-                    rentPrice,
-                    typeOfRent,
-                    product.getAvailabilityStatus(),
-                    DateUtil.formatLocalDateTime(product.getCreatedAt())
-            );
-        }).toList();
+        return products.stream()
+                .map(product -> mapToProductDto(product, false)) // no booking info needed
+                .toList();
     }
 
     @Transactional
@@ -304,4 +276,56 @@ public class ProductService {
             return new AddProductResponse("500", "Internal server error");
         }
     }
+
+
+    private ProductDto mapToProductDto(Products product, boolean includeBookingInfo) {
+        List<Long> categoryIds = productCategoryRepository.findByProductId(product.getId()).stream()
+                .map(ProductCategory::getCategoryId)
+                .toList();
+
+        List<String> categoryNames = categoryIds.stream()
+                .map(categoryRepository::findById)
+                .filter(Optional::isPresent)
+                .map(opt -> opt.get().getName())
+                .toList();
+
+        Double rentPrice = null;
+        String typeOfRent = null;
+        if (product.getRentId() != null) {
+            Rent rent = rentRepository.findById(product.getRentId()).orElse(null);
+            if (rent != null) {
+                rentPrice = rent.getRentPrice();
+                typeOfRent = rent.getTypeOfRent().toString();
+            }
+        }
+
+        LocalDateTime rentStartTime = null;
+        LocalDateTime rentEndTime = null;
+
+        if (includeBookingInfo && "RENTED".equalsIgnoreCase(product.getAvailabilityStatus())) {
+            Optional<RentBookings> latestBookingOpt = rentBookingsRepository
+                    .findTopByProductIdOrderByRentStartTimeDesc(product.getId());
+
+            if (latestBookingOpt.isPresent()) {
+                RentBookings booking = latestBookingOpt.get();
+                rentStartTime = booking.getRentStartTime();
+                rentEndTime = booking.getRentEndTime();
+            }
+        }
+
+        return new ProductDto(
+                product.getId(),
+                product.getTitle(),
+                product.getDescription(),
+                categoryNames,
+                product.getSellingPrice(),
+                rentPrice,
+                typeOfRent,
+                product.getAvailabilityStatus(),
+                DateUtil.formatLocalDateTime(product.getCreatedAt()),
+                rentStartTime,
+                rentEndTime
+        );
+    }
+
 }

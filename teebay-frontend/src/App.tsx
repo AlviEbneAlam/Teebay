@@ -5,8 +5,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { MyProducts } from './components/MyProducts';
+import { AllProducts } from './components/AllProducts';
+import { ProductDetails } from './components/ProductDetails';
 import {StepperForm} from './components/Form/StepperForm';
-import {EditProductForm} from './components/Form/EditProductForm'
+import {EditProductForm} from './components/Form/EditProductForm';
 import '@mantine/core/styles.css';
 import BaseLayout from './components/layout/BaseLayout';
 
@@ -28,12 +30,32 @@ function App() {
                 </ProtectedRoute>
               }
             />
+             <Route
+              path="/product/:id"
+              element={
+                <ProtectedRoute>
+                  <BaseLayout>
+                    <ProductDetails />
+                  </BaseLayout>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/MyProducts"
               element={
                 <ProtectedRoute>
                   <BaseLayout>
                     <MyProducts />
+                  </BaseLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/AllProducts"
+              element={
+                <ProtectedRoute>
+                  <BaseLayout>
+                    <AllProducts />
                   </BaseLayout>
                 </ProtectedRoute>
               }

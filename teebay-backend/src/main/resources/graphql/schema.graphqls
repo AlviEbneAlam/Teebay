@@ -1,6 +1,6 @@
 type Query {
   productsByUserPaginated(page: Int!, size: Int!): ProductPage!
-  availableProductsPaginated(page: Int!, size: Int!): ProductPage!
+  allProductsPaginated(page: Int!, size: Int!): ProductPage!
 }
 
 type Mutation {
@@ -69,6 +69,8 @@ type Product {
   typeOfRent: String
   availabilityStatus: String
   createdAt: String
+  rentStartTime: String
+  rentEndTime: String
 }
 
 

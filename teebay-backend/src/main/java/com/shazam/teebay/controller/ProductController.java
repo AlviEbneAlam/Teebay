@@ -54,10 +54,9 @@ public class ProductController {
     }
 
     @QueryMapping
-    public ProductPageDto allProductsPaginated(@Argument int page, @Argument int size,
-                                               @Argument String status) {
+    public ProductPageDto allProductsPaginated(@Argument int page, @Argument int size) {
         try {
-            return productService.getAllProductsByStatus(page, size,status);
+            return productService.getAllProductsByStatus(page, size);
         } catch (GraphQLValidationException | GraphQLDataProcessingException ex) {
             throw ex;
         } catch (Exception e) {

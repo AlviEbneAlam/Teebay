@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Table(name = "RentalInfo", schema = "teebays")
+@Table(schema = "teebays")
 @Data
 public class RentBookings {
 

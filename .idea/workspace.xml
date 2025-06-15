@@ -5,10 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9e9bafe3-b56d-4f9b-a2aa-06d7abf2a17a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/db/migration/V2__rent_bookings_gist_exclusion.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/ProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/ProductDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/RentBookings.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/RentBookings.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/RentBookingsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/RentBookingsRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -52,6 +59,11 @@
     "dart.analysis.tool.window.visible": "false",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "E:/Teebay/teebay-backend/src/main/java/com/shazam/teebay/dto"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "SQL"
+    ]
   }
 }]]></component>
   <component name="RecentsManager">
@@ -247,7 +259,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java</url>
-          <line>75</line>
+          <line>74</line>
           <option name="timeStamp" value="107" />
         </line-breakpoint>
       </breakpoints>

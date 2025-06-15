@@ -11,5 +11,7 @@ public record ProductDto(Long id,
                          Double rent,
                          String typeOfRent,
                          String availabilityStatus,
-                         String createdAt) {
+                         String createdAt,
+                         LocalDateTime rentStartTime,
+                         LocalDateTime rentEndTime   ) {
 }

@@ -1,6 +1,6 @@
 // components/layout/BaseLayout.tsx
 import { AppShell, Button, Group, Container, Text } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
 const BaseLayout = ({ children }: Props) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -17,15 +18,28 @@ const BaseLayout = ({ children }: Props) => {
   };
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      padding="md"
-    >
-       <AppShell.Header>
+    <AppShell header={{ height: 60 }} padding="md">
+      <AppShell.Header>
         <Container size="xl" style={{ height: '100%' }}>
           <Group justify="space-between" align="center" style={{ height: '100%' }}>
             <Text fw={700}>My App</Text>
-            <Button onClick={handleLogout}>Logout</Button>
+            <Group>
+              <Button
+                variant={location.pathname === '/allProducts' ? 'filled' : 'light'}
+                onClick={() => navigate('/allProducts')}
+              >
+                All Products
+              </Button>
+              <Button
+                variant={location.pathname === '/myProducts' ? 'filled' : 'light'}
+                onClick={() => navigate('/myProducts')}
+              >
+                My Products
+              </Button>
+            </Group>
+            <Button color="red" onClick={handleLogout}>
+              Logout
+            </Button>
           </Group>
         </Container>
       </AppShell.Header>

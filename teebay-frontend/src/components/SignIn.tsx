@@ -47,7 +47,7 @@ export function SignIn() {
       if (data?.login?.jwtToken) {
         login(data.login.jwtToken); 
         console.log('Successful login');
-        navigate('/MyProducts');
+        navigate('/AllProducts');
       } else {
         console.error('Login failed:', data?.login?.message);
       }

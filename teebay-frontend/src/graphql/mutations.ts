@@ -56,3 +56,12 @@ export const EDIT_PRODUCT = gql`
     }
   }
 `;
+
+export const DELETE_PRODUCT = gql`
+  mutation DeleteProduct($productId: Int!) {
+    deleteProduct(productId: $productId) {
+      statusCode
+      statusMessage
+    }
+  }
+`;

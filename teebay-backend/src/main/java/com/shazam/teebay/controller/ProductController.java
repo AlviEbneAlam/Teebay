@@ -42,4 +42,9 @@ public class ProductController {
         }
     }
 
+    @MutationMapping
+    public AddProductResponse deleteProduct(@Argument Long productId) {
+        return productService.deleteProduct(productId);
+    }
+
 }

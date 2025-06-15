@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="9e9bafe3-b56d-4f9b-a2aa-06d7abf2a17a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-frontend/src/components/MyProducts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/components/MyProducts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/components/SignIn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/components/SignIn.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-frontend/src/graphql/mutations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/graphql/mutations.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

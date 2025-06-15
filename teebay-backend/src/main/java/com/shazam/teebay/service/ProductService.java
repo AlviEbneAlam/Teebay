@@ -201,4 +201,36 @@ public class ProductService {
                 productPage.getNumber()
         );
     }
+
+    @Transactional
+    public AddProductResponse deleteProduct(Long productId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserInfo user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new GraphQLValidationException("User not found: " + email));
+
+        Products product = productRepository.findById(productId)
+                .orElseThrow(() -> new GraphQLValidationException("Product not found with ID: " + productId));
+
+        if (!product.getUserId().equals(user.getId())) {
+            throw new GraphQLValidationException("You are not authorized to delete this product.");
+        }
+
+        try {
+            // Delete category mappings
+            productCategoryRepository.deleteByProductId(productId);
+
+            // Delete rent if exists
+            if (product.getRentId() != null) {
+                rentRepository.deleteById(product.getRentId());
+            }
+
+            // Delete the product
+            productRepository.deleteById(productId);
+
+            return new AddProductResponse("200", "Product deleted successfully with ID: " + productId);
+        } catch (Exception e) {
+            throw new GraphQLDataProcessingException("Failed to delete product", e);
+        }
+    }
 }

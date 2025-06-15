@@ -6,7 +6,7 @@ type Mutation {
   register(userInfo: RegisterInput!): RegisterResponse
   login(jwtRequest: JwtRequestInput): JwtResponse
   addProduct(addProductRequest: AddProductInput!): AddProductResponse!
-  editProduct(productId: ID!, editRequest: AddProductInput!): AddProductResponse!
+  editProduct(productId: Int!, editRequest: AddProductInput!): AddProductResponse!
 }
 
 input RegisterInput {
@@ -57,7 +57,7 @@ type ProductPage {
 }
 
 type Product {
-  id: ID!
+  id: Int!
   title: String!
   description: String
   categories: [String!]!

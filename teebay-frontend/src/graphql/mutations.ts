@@ -47,3 +47,12 @@ export const PRODUCTS_BY_USER_PAGINATED = gql`
     }
   }
 `;
+
+export const EDIT_PRODUCT = gql`
+  mutation EditProduct($productId: Int!, $editRequest: AddProductInput!) {
+    editProduct(productId: $productId, editRequest: $editRequest) {
+      statusCode
+      statusMessage
+    }
+  }
+`;

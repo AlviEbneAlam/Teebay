@@ -5,7 +5,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { MyProducts } from './components/MyProducts';
-import {StepperForm} from './components/Form/StepperForm'
+import {StepperForm} from './components/Form/StepperForm';
+import {EditProductForm} from './components/Form/EditProductForm'
 import '@mantine/core/styles.css';
 import BaseLayout from './components/layout/BaseLayout';
 
@@ -18,7 +19,17 @@ function App() {
             <Route path="/" element={<SignIn />} />
             <Route path="/register" element={<RegistrationForm />} />
             <Route
-              path="/LoggedInMessage"
+              path="/edit-product/:id"
+              element={
+                <ProtectedRoute>
+                  <BaseLayout>
+                    <EditProductForm />
+                  </BaseLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/MyProducts"
               element={
                 <ProtectedRoute>
                   <BaseLayout>

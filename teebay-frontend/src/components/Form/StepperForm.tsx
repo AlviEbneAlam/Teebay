@@ -11,12 +11,14 @@ import {
 import { useMutation } from '@apollo/client';
 import { ADD_PRODUCT } from '../../graphql/mutations';
 import { useAuth } from '../../auth/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 
 export function StepperForm() {
   const [active, setActive] = useState(0);
   const [addProduct] = useMutation(ADD_PRODUCT);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
     title: '',
@@ -32,31 +34,46 @@ export function StepperForm() {
   };
 
   const submitProduct = async () => {
-    try {
-      const input = {
-        title: formValues.title,
-        categoriesList: formValues.category,
-        description: formValues.description,
-        sellingPrice: parseFloat(formValues.price),
-        rent: parseFloat(formValues.rent),
-        typeOfRent: formValues.rentType.replace(' ', '_').toUpperCase(),
-      };
+  try {
+    const input = {
+      title: formValues.title,
+      categoriesList: formValues.category,
+      description: formValues.description,
+      sellingPrice: parseFloat(formValues.price),
+      rent: parseFloat(formValues.rent),
+      typeOfRent: formValues.rentType.replace(' ', '_').toUpperCase(),
+    };
 
-      const { data } = await addProduct({
-        variables: { addProductRequest: input },
-        context: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    const response = await addProduct({
+      variables: { addProductRequest: input },
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      });
+      },
+    });
 
-      alert(`Product added! Status: ${data.addProduct.statusMessage}`);
-    } catch (err) {
-      console.error('Submission error', err);
-      alert('Failed to add product');
+    const { data, errors } = response;
+
+    if (errors && errors.length > 0) {
+      console.error('GraphQL Errors:', errors);
+      alert(errors[0].message || 'Failed to add product');
+      return;
     }
-  };
+
+    if (data?.addProduct?.statusCode === '200') {
+      alert(`✅ ${data.addProduct.statusMessage}`);
+      navigate('/MyProducts');
+    } else {
+      alert(`❌ Failed: ${data?.addProduct?.statusMessage || 'Unknown error'}`);
+    }
+
+  } catch (err) {
+    console.error('Network or Apollo Error:', err);
+    alert('❌ Network error while submitting product');
+  }
+};
+
 
   const isStepValid = () => {
     if (active === 0) return formValues.title.trim().length > 0;

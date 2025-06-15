@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -23,7 +24,17 @@ public class ProductController {
 
     @MutationMapping
     public AddProductResponse addProduct(@Argument @Valid AddProductRequest addProductRequest) {
-        return productService.addProduct(addProductRequest);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Add product request received. User: {}",email );
+        log.info("Received AddProductRequest: {}", addProductRequest);
+
+        try{
+            return productService.addProduct(addProductRequest);
+        }
+        catch(Exception ex){
+            log.info("Exception in add product: {}", ex.getLocalizedMessage());
+            throw new GraphQLDataProcessingException("Failed to add product", ex);
+        }
     }
 
     @MutationMapping

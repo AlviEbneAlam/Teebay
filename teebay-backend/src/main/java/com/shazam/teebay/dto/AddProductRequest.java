@@ -14,7 +14,7 @@ public record AddProductRequest(
         @NotEmpty(message = "At least one category must be provided")
         List<@NotBlank(message = "Category name must not be blank") String> categoriesList,
 
-        @Size(max = 1000, message = "Description can be at most 1000 characters")
+        //@Size(max = 10000, message = "Description can be at most 1000 characters")
         String description,
 
         @NotBlank(message = "Type of rent  is required (PER_HOUR, PER_DAY)")

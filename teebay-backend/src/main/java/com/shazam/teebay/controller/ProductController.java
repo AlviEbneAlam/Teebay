@@ -53,9 +53,27 @@ public class ProductController {
         }
     }
 
+    @QueryMapping
+    public ProductPageDto allProductsPaginated(@Argument int page, @Argument int size,
+                                               @Argument String status) {
+        try {
+            return productService.getAllProductsByStatus(page, size,status);
+        } catch (GraphQLValidationException | GraphQLDataProcessingException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new GraphQLDataProcessingException("Failed to fetch paginated products", e);
+        }
+    }
+
     @MutationMapping
     public AddProductResponse deleteProduct(@Argument Long productId) {
         return productService.deleteProduct(productId);
+    }
+
+
+    @MutationMapping
+    public AddProductResponse buyProduct(@Argument Long productId, @Argument String status) {
+        return productService.changeProductStatus(productId, status);
     }
 
 }

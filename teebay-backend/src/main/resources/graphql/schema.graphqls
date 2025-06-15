@@ -1,5 +1,6 @@
 type Query {
   productsByUserPaginated(page: Int!, size: Int!): ProductPage!
+  availableProductsPaginated(page: Int!, size: Int!): ProductPage!
 }
 
 type Mutation {
@@ -8,6 +9,7 @@ type Mutation {
   addProduct(addProductRequest: AddProductInput!): AddProductResponse!
   editProduct(productId: Int!, editRequest: AddProductInput!): AddProductResponse!
   deleteProduct(productId: Int!): AddProductResponse!
+  buyProduct(productId: Int!, status: String!): AddProductResponse!
 }
 
 input RegisterInput {

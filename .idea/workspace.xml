@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="9e9bafe3-b56d-4f9b-a2aa-06d7abf2a17a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/Filter/JwtRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/filter/JwtRequestFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/AddProductRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/AddProductRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/handler/GraphQLExceptionResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/handler/GraphQLExceptionResolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,84 +191,6 @@
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>146</line>
-          <option name="timeStamp" value="66" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>149</line>
-          <option name="timeStamp" value="81" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>151</line>
-          <option name="timeStamp" value="82" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>152</line>
-          <option name="timeStamp" value="83" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>160</line>
-          <option name="timeStamp" value="84" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>161</line>
-          <option name="timeStamp" value="85" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>162</line>
-          <option name="timeStamp" value="86" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>165</line>
-          <option name="timeStamp" value="87" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>166</line>
-          <option name="timeStamp" value="88" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>167</line>
-          <option name="timeStamp" value="89" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>168</line>
-          <properties>
-            <option name="lambda-ordinal" value="1" />
-          </properties>
-          <option name="timeStamp" value="90" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>174</line>
-          <option name="timeStamp" value="91" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>176</line>
-          <option name="timeStamp" value="92" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>177</line>
-          <option name="timeStamp" value="93" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java</url>
-          <line>175</line>
-          <option name="timeStamp" value="94" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/filter/JwtRequestFilter.java</url>
           <line>65</line>
           <option name="timeStamp" value="95" />
@@ -322,6 +244,11 @@
           <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/filter/JwtRequestFilter.java</url>
           <line>89</line>
           <option name="timeStamp" value="105" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java</url>
+          <line>75</line>
+          <option name="timeStamp" value="107" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

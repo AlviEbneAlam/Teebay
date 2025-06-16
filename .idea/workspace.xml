@@ -5,18 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9e9bafe3-b56d-4f9b-a2aa-06d7abf2a17a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/db/migration/V2__rent_bookings_gist_exclusion.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/ProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/dto/ProductDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/RentBookings.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/RentBookings.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/ProductPurchase.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/ProductPurchase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductPurchaseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductPurchaseRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/ProductRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/RentBookingsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/repository/RentBookingsRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/ProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/RentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/service/RentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/resources/graphql/schema.graphqls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/components/AllProducts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/components/AllProducts.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/components/MyProducts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/components/MyProducts.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/components/ProductDetails.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/components/ProductDetails.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/src/graphql/mutations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/src/graphql/mutations.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,22 +53,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.TeebayApplication.executor": "Run",
-    "Maven.teebay [clean].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Teebay/teebay-backend/src/main/java/com/shazam/teebay/dto"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.TeebayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.teebay [clean].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Teebay/teebay-backend/src/main/java/com/shazam/teebay/dto&quot;
   },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "SQL"
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;SQL&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Teebay\teebay-backend\src\main\java\com\shazam\teebay\dto" />
@@ -256,11 +259,6 @@
           <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/filter/JwtRequestFilter.java</url>
           <line>89</line>
           <option name="timeStamp" value="105" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/controller/ProductController.java</url>
-          <line>74</line>
-          <option name="timeStamp" value="107" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

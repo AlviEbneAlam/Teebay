@@ -65,3 +65,21 @@ export const DELETE_PRODUCT = gql`
     }
   }
 `;
+
+export const BUY_PRODUCT_MUTATION = gql`
+  mutation BuyProduct($productId: Int!, $status: String!) {
+    buyProduct(productId: $productId, status: $status) {
+      statusCode
+      statusMessage
+    }
+  }
+`;
+
+export const BOOK_FOR_RENT_MUTATION = gql`
+  mutation BookForRent($productId: Int!, $rentStart: DateTime!, $rentEnd: DateTime!) {
+    bookForRent(productId: $productId, rentStart: $rentStart, rentEnd: $rentEnd) {
+      statusCode
+      statusMessage
+    }
+  }
+`;

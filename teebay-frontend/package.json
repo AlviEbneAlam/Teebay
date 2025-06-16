@@ -12,12 +12,16 @@
   "dependencies": {
     "@apollo/client": "^3.13.8",
     "@mantine/core": "^8.1.0",
+    "@mantine/dates": "^8.1.0",
     "@mantine/form": "^8.1.0",
     "@mantine/hooks": "^8.1.0",
     "@mantine/notifications": "^8.1.0",
+    "dayjs": "^1.11.13",
     "graphql": "^16.11.0",
     "react": "^19.1.0",
+    "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
+    "react-input-mask": "^2.0.4",
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {

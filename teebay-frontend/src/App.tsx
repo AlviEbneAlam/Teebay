@@ -70,6 +70,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
           </Routes>
         </AuthProvider>
       </Router>

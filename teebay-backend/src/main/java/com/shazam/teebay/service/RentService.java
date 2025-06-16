@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -64,7 +65,7 @@ public class RentService {
         try {
 
             Products product = productRepository
-                    .findByIdAndAvailabilityStatus(productId, "AVAILABLE")
+                    .findByIdAndAvailabilityStatusIn(productId, List.of("AVAILABLE", "RENTED"))
                     .orElseThrow(() -> new GraphQLValidationException("Product not available"));
 
             Rent rent = rentRepository.findById(product.getRentId())

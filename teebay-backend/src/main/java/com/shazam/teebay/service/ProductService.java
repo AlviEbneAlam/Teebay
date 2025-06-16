@@ -12,6 +12,7 @@ import com.shazam.teebay.exception.GraphQLDataProcessingException;
 import com.shazam.teebay.exception.GraphQLValidationException;
 import com.shazam.teebay.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -239,7 +240,7 @@ public class ProductService {
     }
 
     @Transactional
-    public AddProductResponse changeProductStatus(Long productId, String status) {
+    public AddProductResponse buyProduct(Long productId, String status) {
 
         try {
             ProductState.valueOf(status.toUpperCase());
@@ -248,16 +249,19 @@ public class ProductService {
         }
 
         try {
-            Products product = productRepository
-                    .findByIdAndAvailabilityStatus(productId, "AVAILABLE")
-                    .orElseThrow(() -> new GraphQLValidationException("Product not found or not available"));
+            Products product = productRepository.findById(productId)
+                    .orElseThrow(() -> new GraphQLValidationException("Product not found"));
 
+            boolean alreadySold = purchaseRepository.existsByProductId(productId);
+            if (alreadySold) {
+                return new AddProductResponse("400", "Product has already been sold.");
+            }
+
+            // Update product status
             product.setAvailabilityStatus(status);
             productRepository.save(product);
 
-
             if ("SOLD".equalsIgnoreCase(status)) {
-                // get current user
                 String email = SecurityContextHolder.getContext().getAuthentication().getName();
                 UserInfo buyer = userRepository.findByEmail(email)
                         .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found: " + email));
@@ -265,10 +269,18 @@ public class ProductService {
                 ProductPurchase purchase = new ProductPurchase();
                 purchase.setProductId(productId);
                 purchase.setBuyerId(buyer.getId());
-                purchaseRepository.save(purchase);
+
+                // Save purchase and catch unique constraint violation
+                try {
+                    purchaseRepository.save(purchase);
+                } catch (DataIntegrityViolationException e) {
+                    // This exception happens if unique constraint on product_id is violated
+                    return new AddProductResponse("400", "Product has already been sold (race condition prevented).");
+                }
             }
 
             return new AddProductResponse("200", "Product marked as " + status);
+
         } catch (GraphQLValidationException ex) {
             return new AddProductResponse("400", ex.getMessage());
         } catch (Exception ex) {
@@ -276,6 +288,7 @@ public class ProductService {
             return new AddProductResponse("500", "Internal server error");
         }
     }
+
 
 
     private ProductDto mapToProductDto(Products product, boolean includeBookingInfo) {
@@ -301,15 +314,33 @@ public class ProductService {
 
         LocalDateTime rentStartTime = null;
         LocalDateTime rentEndTime = null;
+        String availabilityStatus = product.getAvailabilityStatus();
 
-        if (includeBookingInfo && "RENTED".equalsIgnoreCase(product.getAvailabilityStatus())) {
+        if (includeBookingInfo && "RENTED".equalsIgnoreCase(availabilityStatus)) {
             Optional<RentBookings> latestBookingOpt = rentBookingsRepository
                     .findTopByProductIdOrderByRentStartTimeDesc(product.getId());
 
             if (latestBookingOpt.isPresent()) {
                 RentBookings booking = latestBookingOpt.get();
-                rentStartTime = booking.getRentStartTime();
-                rentEndTime = booking.getRentEndTime();
+
+                // Check if rentEndTime is after now
+                if (booking.getRentEndTime().isAfter(LocalDateTime.now())) {
+                    // Still rented: keep start/end times
+                    rentStartTime = booking.getRentStartTime();
+                    rentEndTime = booking.getRentEndTime();
+                } else {
+                    // Rental period is over: update status to AVAILABLE
+                    availabilityStatus = "AVAILABLE";
+
+                    // Optionally update the product entity in DB immediately
+                    product.setAvailabilityStatus("AVAILABLE");
+                    productRepository.save(product);
+                }
+            } else {
+                // No bookings found: also mark available
+                availabilityStatus = "AVAILABLE";
+                product.setAvailabilityStatus("AVAILABLE");
+                productRepository.save(product);
             }
         }
 
@@ -321,7 +352,7 @@ public class ProductService {
                 product.getSellingPrice(),
                 rentPrice,
                 typeOfRent,
-                product.getAvailabilityStatus(),
+                availabilityStatus,
                 DateUtil.formatLocalDateTime(product.getCreatedAt()),
                 rentStartTime,
                 rentEndTime

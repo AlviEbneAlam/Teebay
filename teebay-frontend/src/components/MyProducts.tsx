@@ -28,6 +28,13 @@ export interface Product {
   createdAt: string;
 }
 
+interface ProductsByUserPaginatedData {
+  productsByUserPaginated: {
+    products: Product[];
+    totalPages: number;
+  };
+}
+
 export const MyProducts: React.FC = () => {
   const [page, setPage] = useState(1);
   const [showMoreMap, setShowMoreMap] = useState<Record<number, boolean>>({});
@@ -36,41 +43,67 @@ export const MyProducts: React.FC = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  const { data, loading, error, refetch } = useQuery(PRODUCTS_BY_USER_PAGINATED, {
+  const { data, loading, error} = useQuery(PRODUCTS_BY_USER_PAGINATED, {
     variables: { page: page - 1, size },
     context: {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     },
-    fetchPolicy: 'network-only',
+    
+    fetchPolicy: 'cache-and-network',
   });
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  context: {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  },
+  update(cache) {
+  if (!productToDelete) return;
+
+  const existing = cache.readQuery<ProductsByUserPaginatedData>({
+    query: PRODUCTS_BY_USER_PAGINATED,
+    variables: { page: page - 1, size },
+  });
+
+  if (!existing) return;
+
+  const updatedProducts = existing.productsByUserPaginated.products.filter(
+    (p: Product) => p.id !== productToDelete.id
+  );
+
+  cache.writeQuery<ProductsByUserPaginatedData>({
+    query: PRODUCTS_BY_USER_PAGINATED,
+    variables: { page: page - 1, size },
+    data: {
+      productsByUserPaginated: {
+        ...existing.productsByUserPaginated,
+        products: updatedProducts,
       },
     },
-    onCompleted: (data) => {
-      showNotification({
-        title: 'Product Deleted',
-        message: data.deleteProduct.statusMessage,
-        color: 'green',
-      });
-      setProductToDelete(null);
-      refetch(); // refresh list
-    },
-    onError: (err) => {
-      showNotification({
-        title: 'Error',
-        message: err.message,
-        color: 'red',
-      });
-      setProductToDelete(null);
-      refetch();
-    },
   });
+}
+,
+  onCompleted: (data) => {
+    showNotification({
+      title: 'Product Deleted',
+      message: data.deleteProduct.statusMessage,
+      color: 'green',
+    });
+    setProductToDelete(null);
+  },
+  onError: (err) => {
+    showNotification({
+      title: 'Error',
+      message: err.message,
+      color: 'red',
+    });
+    setProductToDelete(null);
+  },
+});
+
 
   if (loading) return <Text>Loading...</Text>;
   if (error) return <Text color="red">Error: {error.message}</Text>;

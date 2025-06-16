@@ -5,7 +5,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_purchases", schema = "teebays")
+@Table(
+        name = "product_purchases",
+        schema = "teebays",
+        uniqueConstraints = @UniqueConstraint(columnNames = "product_id")
+)
 @Data
 public class ProductPurchase {
 

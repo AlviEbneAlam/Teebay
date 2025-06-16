@@ -4,6 +4,7 @@ import com.shazam.teebay.dto.*;
 import com.shazam.teebay.exception.GraphQLDataProcessingException;
 import com.shazam.teebay.exception.GraphQLValidationException;
 import com.shazam.teebay.service.ProductService;
+import com.shazam.teebay.service.RentService;
 import com.shazam.teebay.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,15 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
 
     private final ProductService productService;
+    private  final RentService rentService;
 
     @MutationMapping
     public AddProductResponse addProduct(@Argument @Valid AddProductRequest addProductRequest) {
@@ -72,7 +76,12 @@ public class ProductController {
 
     @MutationMapping
     public AddProductResponse buyProduct(@Argument Long productId, @Argument String status) {
-        return productService.changeProductStatus(productId, status);
+        return productService.buyProduct(productId, status);
+    }
+
+    @MutationMapping
+    public AddProductResponse bookForRent(@Argument Long productId, @Argument LocalDateTime rentStart, @Argument LocalDateTime rentEnd) {
+        return rentService.bookForRent(productId, rentStart, rentEnd);
     }
 
 }

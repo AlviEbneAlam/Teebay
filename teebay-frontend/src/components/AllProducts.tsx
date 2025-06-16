@@ -43,7 +43,7 @@ export const AllProducts: React.FC = () => {
         Authorization: `Bearer ${token}`,
       },
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
 
   if (loading) return <Text>Loading...</Text>;

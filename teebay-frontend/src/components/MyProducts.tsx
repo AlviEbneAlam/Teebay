@@ -13,7 +13,8 @@ import {
 import { showNotification } from '@mantine/notifications';
 import { useQuery, useMutation } from '@apollo/client';
 import { useNavigate, Link } from 'react-router-dom';
-import { PRODUCTS_BY_USER_PAGINATED, DELETE_PRODUCT } from '../graphql/mutations';
+import { PRODUCTS_BY_USER_PAGINATED } from '../graphql/queries';
+import { DELETE_PRODUCT } from '../graphql/mutations';
 import { useAuth } from '../auth/useAuth';
 
 export interface Product {

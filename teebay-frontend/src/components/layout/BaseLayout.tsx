@@ -36,6 +36,12 @@ const BaseLayout = ({ children }: Props) => {
               >
                 My Products
               </Button>
+               <Button
+                variant={location.pathname === '/activity' ? 'filled' : 'light'}
+                onClick={() => navigate('/MyActivity')}
+              >
+                Activity
+              </Button>
             </Group>
             <Button color="red" onClick={handleLogout}>
               Logout

@@ -22,3 +22,37 @@ export const GET_ALL_PRODUCTS_PAGINATED = gql`
     }
   }
 `;
+
+export const PRODUCT_BY_ID = gql`
+  query ProductById($productId: Int!) {
+    productById(productId: $productId) {
+      id
+      title
+      description
+      categories
+      sellingPrice
+      rent
+      typeOfRent
+    }
+  }
+`;
+
+export const PRODUCTS_BY_USER_PAGINATED = gql`
+  query ProductsByUserPaginated($page: Int!, $size: Int!) {
+    productsByUserPaginated(page: $page, size: $size) {
+      products {
+        id
+        title
+        categories
+        sellingPrice
+        rent
+        typeOfRent
+        description
+        createdAt
+      }
+      totalPages
+      totalElements
+      currentPage
+    }
+  }
+`;

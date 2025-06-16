@@ -308,4 +308,26 @@ public class ProductService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public ProductDto getProductById(Long productId) {
+        try {
+
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            UserInfo user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new GraphQLValidationException("User not found: " + email));
+
+
+            Products product = productRepository.findByIdAndUserId(productId, user.getId())
+                    .orElseThrow(() -> new GraphQLValidationException("Product not found with ID: " + productId + " for user: " + email));
+
+            return mapToProductDto(product, true);
+
+        } catch (GraphQLValidationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GraphQLDataProcessingException("Failed to fetch product by ID", e);
+        }
+    }
+
 }

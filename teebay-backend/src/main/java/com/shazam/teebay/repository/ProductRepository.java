@@ -15,4 +15,7 @@ public interface ProductRepository extends JpaRepository<Products, Long> {
     Page<Products> findAllByAvailabilityStatusIn(List<String> statuses, Pageable pageable);
     Optional<Products> findByIdAndAvailabilityStatusIn(Long id, List<String> availabilityStatus);
 
+    Optional<Products> findByIdAndUserId(Long productId, Long userId);
+
+
 }

@@ -9,6 +9,7 @@ import { AllProducts } from './components/AllProducts';
 import { ProductDetails } from './components/ProductDetails';
 import {StepperForm} from './components/Form/StepperForm';
 import {EditProductForm} from './components/Form/EditProductForm';
+import {MyActivity} from './components/MyActivity';
 import '@mantine/core/styles.css';
 import BaseLayout from './components/layout/BaseLayout';
 
@@ -56,6 +57,16 @@ function App() {
                 <ProtectedRoute>
                   <BaseLayout>
                     <AllProducts />
+                  </BaseLayout>
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/MyActivity"
+              element={
+                <ProtectedRoute>
+                  <BaseLayout>
+                    <MyActivity />
                   </BaseLayout>
                 </ProtectedRoute>
               }

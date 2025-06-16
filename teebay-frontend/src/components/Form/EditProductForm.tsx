@@ -10,26 +10,64 @@ import {
   Button,
   Paper,
   Group,
+  Loader,
+  Center,
+  Text,
 } from '@mantine/core';
-import { useMutation } from '@apollo/client';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useMutation, useQuery } from '@apollo/client';
+import { useNavigate, useParams } from 'react-router-dom';
 import { EDIT_PRODUCT } from '../../graphql/mutations';
+import { PRODUCT_BY_ID } from '../../graphql/queries';
 import { showNotification } from '@mantine/notifications';
 import { useAuth } from '../../auth/useAuth';
 
 export const EditProductForm: React.FC = () => {
+  
   const navigate = useNavigate();
-  const location = useLocation();
-  const product = location.state?.product;
+  const { id } = useParams(); 
   const { token } = useAuth();
+  //console.log('productId from useParams:', productId);
 
-  const [formState, setFormState] = useState({
-    title: product.title || '',
-    description: product.description || '',
-    categoriesList: product.categories || [],
-    sellingPrice: product.sellingPrice || 0,
-    rent: product.rent || 0,
-    typeOfRent: product.typeOfRent || '',
+  type RentType = 'PER_HOUR' | 'PER_DAY' | '';
+
+  interface FormState {
+    title: string;
+    description: string;
+    categoriesList: string[];
+    sellingPrice: number;
+    rent: number;
+    typeOfRent: RentType;
+  }
+
+  const [formState, setFormState] = useState<FormState>({
+    title: '',
+    description: '',
+    categoriesList: [],
+    sellingPrice: 0,
+    rent: 0,
+    typeOfRent: '',
+  });
+
+  const {  loading: queryLoading, error: queryError } = useQuery(PRODUCT_BY_ID, {
+  
+    variables: { productId: Number(id) },
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    fetchPolicy: 'network-only',
+    onCompleted: (data) => {
+      const product = data.productById;
+      setFormState({
+        title: product.title || '',
+        description: product.description || '',
+        categoriesList: product.categories || [],
+        sellingPrice: product.sellingPrice || 0,
+        rent: product.rent || 0,
+        typeOfRent: product.typeOfRent || '',
+      });
+    },
   });
 
   const [editProduct, { loading }] = useMutation(EDIT_PRODUCT, {
@@ -51,27 +89,43 @@ export const EditProductForm: React.FC = () => {
   });
 
   const handleSubmit = () => {
+
+    
     editProduct({
       variables: {
-        productId: product.id,
-        editRequest: {
-          ...formState,
-        },
+        productId: Number(id),
+        editRequest: { ...formState },
       },
       context: {
         headers: {
-            Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-    },
-        }).then((response) => {
-        console.log('Edit response:', response);
-    }).catch((error) => {
-        console.error('Edit error:', error);
-    });
+      },
+    })
+      .then((response) => console.log('Edit response:', response))
+      .catch((error) => console.error('Edit error:', error));
   };
 
+  // Show loading state while fetching product
+  if (queryLoading) {
+    return (
+      <Center mt="lg">
+        <Loader />
+      </Center>
+    );
+  }
+
+  if (queryError) {
+    return (
+      <Center mt="lg">
+        <Text color="red">Failed to load product. {queryError.message}</Text>
+      </Center>
+    );
+  }
+
   return (
-    <Container size="sm" >
+      
+    <Container size="sm">
       <Paper withBorder shadow="md" p="xl" radius="md">
         <Title order={3} mb="lg" ta="center">
           Edit Product
@@ -105,7 +159,9 @@ export const EditProductForm: React.FC = () => {
         <NumberInput
           label="Selling Price"
           value={formState.sellingPrice}
-          onChange={(value) => setFormState({ ...formState, sellingPrice: value || 0 })}
+          onChange={(value) =>
+            setFormState({ ...formState, sellingPrice: typeof value === 'number' ? value : 0 })
+          }
           min={0}
           mb="md"
         />
@@ -113,7 +169,9 @@ export const EditProductForm: React.FC = () => {
         <NumberInput
           label="Rent"
           value={formState.rent}
-          onChange={(value) => setFormState({ ...formState, rent: value || 0 })}
+          onChange={(value) =>
+            setFormState({ ...formState, rent: typeof value === 'number' ? value : 0 })
+          }
           min={0}
           mb="md"
         />
@@ -126,7 +184,7 @@ export const EditProductForm: React.FC = () => {
             { value: 'PER_DAY', label: 'Per Day' },
           ]}
           value={formState.typeOfRent}
-          onChange={(value) => setFormState({ ...formState, typeOfRent: value || '' })}
+          onChange={(value) => setFormState({ ...formState, typeOfRent: value as RentType })}
           mb="lg"
         />
 

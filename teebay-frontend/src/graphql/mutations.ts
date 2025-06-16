@@ -28,25 +28,7 @@ export const ADD_PRODUCT = gql`
   }
 `;
 
-export const PRODUCTS_BY_USER_PAGINATED = gql`
-  query ProductsByUserPaginated($page: Int!, $size: Int!) {
-    productsByUserPaginated(page: $page, size: $size) {
-      products {
-        id
-        title
-        categories
-        sellingPrice
-        rent
-        typeOfRent
-        description
-        createdAt
-      }
-      totalPages
-      totalElements
-      currentPage
-    }
-  }
-`;
+
 
 export const EDIT_PRODUCT = gql`
   mutation EditProduct($productId: Int!, $editRequest: AddProductInput!) {

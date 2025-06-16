@@ -87,4 +87,9 @@ public class ProductController {
         return rentService.bookForRent(productId, rentStart, rentEnd, noOfHours);
     }
 
+    @QueryMapping
+    public ProductDto productById(@Argument Long productId) {
+        return productService.getProductById(productId);
+    }
+
 }

@@ -2,6 +2,7 @@
 type Query {
   productsByUserPaginated(page: Int!, size: Int!): ProductPage!
   allProductsPaginated(page: Int!, size: Int!): ProductPage!
+  productById(productId: Int!):Product!
 }
 
 type Mutation {

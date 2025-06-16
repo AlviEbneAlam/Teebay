@@ -3,6 +3,7 @@ package com.shazam.teebay.controller;
 import com.shazam.teebay.dto.*;
 import com.shazam.teebay.exception.GraphQLDataProcessingException;
 import com.shazam.teebay.exception.GraphQLValidationException;
+import com.shazam.teebay.service.BuyService;
 import com.shazam.teebay.service.ProductService;
 import com.shazam.teebay.service.RentService;
 import com.shazam.teebay.service.UserService;
@@ -25,6 +26,7 @@ public class ProductController {
 
     private final ProductService productService;
     private  final RentService rentService;
+    private  final BuyService buyService;
 
     @MutationMapping
     public AddProductResponse addProduct(@Argument @Valid AddProductRequest addProductRequest) {
@@ -76,12 +78,13 @@ public class ProductController {
 
     @MutationMapping
     public AddProductResponse buyProduct(@Argument Long productId, @Argument String status) {
-        return productService.buyProduct(productId, status);
+        return buyService.buyProduct(productId, status);
     }
 
     @MutationMapping
-    public AddProductResponse bookForRent(@Argument Long productId, @Argument LocalDateTime rentStart, @Argument LocalDateTime rentEnd) {
-        return rentService.bookForRent(productId, rentStart, rentEnd);
+    public AddProductResponse bookForRent(@Argument Long productId, @Argument String rentStart,
+                                          @Argument String rentEnd, @Argument int noOfHours) {
+        return rentService.bookForRent(productId, rentStart, rentEnd, noOfHours);
     }
 
 }

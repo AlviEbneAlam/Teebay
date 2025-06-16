@@ -76,8 +76,8 @@ export const BUY_PRODUCT_MUTATION = gql`
 `;
 
 export const BOOK_FOR_RENT_MUTATION = gql`
-  mutation BookForRent($productId: Int!, $rentStart: DateTime!, $rentEnd: DateTime!) {
-    bookForRent(productId: $productId, rentStart: $rentStart, rentEnd: $rentEnd) {
+  mutation BookForRent($productId: Int!, $rentStart: String!, $rentEnd: String!, $noOfHours: Int!) {
+    bookForRent(productId: $productId, rentStart: $rentStart, rentEnd: $rentEnd, noOfHours: $noOfHours) {
       statusCode
       statusMessage
     }

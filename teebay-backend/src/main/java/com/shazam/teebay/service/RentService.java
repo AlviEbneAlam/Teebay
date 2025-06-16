@@ -10,13 +10,17 @@ import com.shazam.teebay.enums.TypeOfRent;
 import com.shazam.teebay.exception.GraphQLValidationException;
 import com.shazam.teebay.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -30,6 +34,7 @@ public class RentService {
     private final UserRepository userRepository;
     private final ProductPurchaseRepository purchaseRepository;
     private final RentBookingsRepository rentBookingsRepository;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public RentService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
@@ -48,15 +53,18 @@ public class RentService {
     }
 
     @Transactional
-    public AddProductResponse bookForRent(Long productId, LocalDateTime rentStart, LocalDateTime rentEnd) {
-        LocalDateTime now = LocalDateTime.now();
+    public AddProductResponse bookForRent(Long productId, String rentStart, String rentEnd, int noOfHours) {
 
-        if (rentEnd.isBefore(rentStart) || rentStart.isBefore(now)) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = LocalDateTime.parse(rentStart, formatter);
+        LocalDateTime endDate = LocalDateTime.parse(rentEnd, formatter);
+
+        if (endDate.isBefore(startDate) || startDate.isBefore(now)) {
             return new AddProductResponse("400", "Invalid rental period");
         }
 
         //Same day booking
-        if (rentStart.toLocalDate().equals(now.toLocalDate()) &&
+        if (startDate.toLocalDate().equals(now.toLocalDate()) &&
                 now.toLocalTime().isAfter(LocalTime.of(10, 0))) {
             return new AddProductResponse("400",
                     "Same‑day rentals must be booked before 10:00 AM");
@@ -72,7 +80,7 @@ public class RentService {
                     .orElseThrow(() -> new GraphQLValidationException("Rent info missing"));
 
 
-            Duration duration = Duration.between(rentStart, rentEnd);
+            Duration duration = Duration.between(startDate, endDate);
             long units;
             if (rent.getTypeOfRent() == TypeOfRent.PER_HOUR) {
                 units = duration.toHours() + (duration.toMinutesPart() > 0 ? 1 : 0);
@@ -91,14 +99,14 @@ public class RentService {
             booking.setProductId(productId);
             booking.setRentId(rent.getId());
             booking.setRenterId(renter.getId());
-            booking.setRentStartTime(rentStart);
-            booking.setRentEndTime(rentEnd);
+            booking.setRentStartTime(startDate);
+            booking.setRentEndTime(endDate);
             booking.setRentPeriod((int) units);
             booking.setRentTimeUnit(rent.getTypeOfRent() == TypeOfRent.PER_HOUR ? "hours" : "days");
             booking.setTotalRent(total);
             booking.setRentStatus(RentStatus.BOOKED);
-            rentBookingsRepository.save(booking);
 
+            rentBookingsRepository.save(booking);
 
             product.setAvailabilityStatus("RENTED");
             productRepository.save(product);
@@ -109,7 +117,13 @@ public class RentService {
                             rent.getTypeOfRent() == TypeOfRent.PER_HOUR ? "hour(s)" : "day(s)",
                             total));
 
-        } catch (GraphQLValidationException ex) {
+        }
+        catch(DataIntegrityViolationException ex){
+            log.info("Encountered exception while inserting bookings: {}", ex.getLocalizedMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new AddProductResponse("400", "Product already booked for this period");
+        }
+        catch (GraphQLValidationException ex) {
             return new AddProductResponse("400", ex.getMessage());
         } catch (Exception ex) {
             log.error("Error booking rental", ex);

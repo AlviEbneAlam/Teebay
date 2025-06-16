@@ -19,17 +19,6 @@ import {
 } from '../graphql/mutations';
 import { useAuth } from '../auth/useAuth';
 
-function localDateTimeStringToISOString(localDateTime: string): string {
-  
-  if (!localDateTime) return '';
-  const [datePart, timePart] = localDateTime.split('T');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute] = timePart.split(':').map(Number);
-
-  const date = new Date(year, month - 1, day, hour, minute, 0);
-  return date.toISOString();
-}
-
 export const ProductDetails: React.FC = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -38,12 +27,15 @@ export const ProductDetails: React.FC = () => {
 
   const [showBuyConfirm, setShowBuyConfirm] = useState(false);
   const [showRentModal, setShowRentModal] = useState(false);
+  const [showRentConfirmModal, setShowRentConfirmModal] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [rentHours, setRentHours] = useState<number>(1);
+  const [rentStartFormatted, setRentStartFormatted] = useState('');
+  const [rentEndFormatted, setRentEndFormatted] = useState('');
 
   const today = new Date();
-  const todayYMD = today.toISOString().split('T')[0]; // YYYY-MM-DD
+  const todayYMD = today.toISOString().split('T')[0];
 
   const isValidRange =
     startDate &&
@@ -68,72 +60,109 @@ export const ProductDetails: React.FC = () => {
     onError: (err) => alert(err.message),
   });
 
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  const formatToAMPM = (datetimeStr: string): string => {
+    const [datePart, timePart] = datetimeStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    const date = new Date(year, month - 1, day, hour, minute);
+
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  const calculateEndTime = (startStr: string, hours: number): string => {
+    const [datePart, timePart] = startStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    const startDate = new Date(year, month - 1, day, hour, minute);
+    const endDate = new Date(startDate.getTime() + hours * 60 * 60 * 1000);
+
+    return endDate.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
  const handleRentConfirm = () => {
   if (!startDate) {
     alert('Please select a start date/time.');
     return;
   }
 
-  let rentStart = startDate; // just use the string as is
-  let rentEnd = '';
-
   if (product.typeOfRent === 'PER_DAY') {
     if (!endDate || startDate > endDate) {
       alert('Please select a valid end date.');
       return;
     }
-    // For per day, set times to start of day and end of day in string format (keep local date + time)
-    rentStart = `${startDate}T00:00`;  // e.g. "2025-05-17T00:00"
-    rentEnd = `${endDate}T23:59`;      // e.g. "2025-05-19T23:59"
-  } else {
-    // PER_HOUR rent logic:
-    // rentStart is exactly the datetime-local string picked by user
-    rentStart = startDate;
 
-    // calculate rentEnd by adding rentHours to rentStart string
-    const [datePart, timePart] = startDate.split('T');
-    const [hour, minute] = timePart.split(':').map(Number);
+    const rentStart = `${startDate} 00:00:00`;
+    const rentEnd = `${endDate} 23:59:59`;
 
-    let startDateObj = new Date();
-    startDateObj.setFullYear(
-      Number(datePart.slice(0,4)),
-      Number(datePart.slice(5,7)) - 1,
-      Number(datePart.slice(8,10))
-    );
-    startDateObj.setHours(hour, minute, 0, 0);
+    bookForRent({
+      variables: {
+        productId: product.id,
+        rentStart,
+        rentEnd,
+        noOfHours: 0,
+      },
+    });
 
-    const endDateObj = new Date(startDateObj.getTime() + rentHours * 60 * 60 * 1000);
-
-    // Format endDateObj back to "yyyy-MM-ddTHH:mm"
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    const y = endDateObj.getFullYear();
-    const m = pad(endDateObj.getMonth() + 1);
-    const d = pad(endDateObj.getDate());
-    const h = pad(endDateObj.getHours());
-    const min = pad(endDateObj.getMinutes());
-
-    rentEnd = `${y}-${m}-${d}T${h}:${min}`;
-
-    // sanity check
-    if (rentEnd <= rentStart) {
-      alert('End time must be after start time based on hours selected.');
-      return;
-    }
+    setShowRentModal(false);
+    return;
   }
 
-  console.log('Rent variables:', { productId: product.id, rentStart, rentEnd });
+  // PER_HOUR: Show confirmation modal
+  const startAMPM = formatToAMPM(startDate);
+  const endAMPM = calculateEndTime(startDate, rentHours);
+
+  setRentStartFormatted(startAMPM);
+  setRentEndFormatted(endAMPM);
+  setShowRentConfirmModal(true);
+};
+
+
+  const confirmHourlyBooking = () => {
+  const [datePart, timePart] = startDate.split('T');
+  const [hour, minute] = timePart.split(':').map(Number);
+  const startDateObj = new Date(
+    Number(datePart.slice(0, 4)),
+    Number(datePart.slice(5, 7)) - 1,
+    Number(datePart.slice(8, 10)),
+    hour,
+    minute
+  );
+
+  const endDateObj = new Date(startDateObj.getTime() + rentHours * 60 * 60 * 1000);
+
+  const rentStart = `${datePart} ${pad(hour)}:${pad(minute)}:00`;
+  const rentEnd = `${endDateObj.getFullYear()}-${pad(endDateObj.getMonth() + 1)}-${pad(
+    endDateObj.getDate()
+  )} ${pad(endDateObj.getHours())}:${pad(endDateObj.getMinutes())}:00`;
 
   bookForRent({
     variables: {
       productId: product.id,
       rentStart,
       rentEnd,
+      noOfHours: rentHours,
     },
   });
 
+  setShowRentConfirmModal(false);
   setShowRentModal(false);
 };
-
 
   if (!product) return <Text color="red">No product data found.</Text>;
 
@@ -158,18 +187,18 @@ export const ProductDetails: React.FC = () => {
         </Text>
 
         <Text mb="xs">
-          Price: {product.sellingPrice} |{' '}
+          Price: ${product.sellingPrice} |{' '} $
           {product.rent != null
             ? `${product.rent} ${product.typeOfRent.toLowerCase().replace('_', ' ')}`
             : 'Not for Rent'}
         </Text>
 
         {product.rentStartTime && product.rentEndTime && (
-          <Text mb="xs" c="dimmed">
-            Rented from <strong>{product.rentStartTime}</strong> to{' '}
-            <strong>{product.rentEndTime}</strong>
-          </Text>
-        )}
+            <Text mb="xs" c="dimmed">
+              Rented from <strong>{formatToAMPM(product.rentStartTime)}</strong> to{' '}
+              <strong>{formatToAMPM(product.rentEndTime)}</strong>
+            </Text>
+          )}
 
         <Divider my="sm" />
         <Text size="sm" style={{ whiteSpace: 'pre-line' }}>
@@ -210,7 +239,7 @@ export const ProductDetails: React.FC = () => {
         </Group>
       </Modal>
 
-      {/* Rent Date/Time Picker Modal */}
+      {/* Rent Modal */}
       <Modal
         opened={showRentModal}
         onClose={() => setShowRentModal(false)}
@@ -256,17 +285,6 @@ export const ProductDetails: React.FC = () => {
                 />
               </label>
 
-              <label style={{ display: 'block', marginBottom: 10 }}>
-                End Date & Time (ignored for calculation):
-                <input
-                  type="datetime-local"
-                  value={endDate}
-                  min={startDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  style={{ width: '100%', padding: '8px', marginTop: 4 }}
-                />
-              </label>
-
               <NumberInput
                 label="Number of Hours"
                 value={rentHours}
@@ -290,6 +308,27 @@ export const ProductDetails: React.FC = () => {
             </Button>
           </Group>
         </div>
+      </Modal>
+
+      {/* Confirm Rent Modal */}
+      <Modal
+        opened={showRentConfirmModal}
+        onClose={() => setShowRentConfirmModal(false)}
+        title="Confirm Rental Period"
+        centered
+      >
+        <Text mb="md">
+          Do you want to confirm booking from <strong>{rentStartFormatted}</strong> to{' '}
+          <strong>{rentEndFormatted}</strong>?
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setShowRentConfirmModal(false)}>
+            Cancel
+          </Button>
+          <Button color="blue" onClick={confirmHourlyBooking}>
+            Confirm Booking
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );

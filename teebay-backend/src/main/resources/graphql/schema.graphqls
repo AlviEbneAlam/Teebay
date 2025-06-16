@@ -1,4 +1,3 @@
-scalar DateTime
 
 type Query {
   productsByUserPaginated(page: Int!, size: Int!): ProductPage!
@@ -12,7 +11,7 @@ type Mutation {
   editProduct(productId: Int!, editRequest: AddProductInput!): AddProductResponse!
   deleteProduct(productId: Int!): AddProductResponse!
   buyProduct(productId: Int!, status: String!): AddProductResponse!
-  bookForRent(productId: Int!, rentStart: DateTime!, rentEnd: DateTime!): AddProductResponse!
+  bookForRent(productId: Int!, rentStart: String!, rentEnd: String!, noOfHours: Int!): AddProductResponse!
 
 }
 

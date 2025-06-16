@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class ProductController {
     private final ProductService productService;
     private  final RentService rentService;
     private  final BuyService buyService;
+    private  final UserService userService;
 
     @MutationMapping
     public AddProductResponse addProduct(@Argument @Valid AddProductRequest addProductRequest) {
@@ -91,5 +93,22 @@ public class ProductController {
     public ProductDto productById(@Argument Long productId) {
         return productService.getProductById(productId);
     }
+
+    @QueryMapping
+    public ProductPageDto productsByUserAndStatus(@Argument int page, @Argument int size, @Argument String status) {
+
+        return productService.getProductsByUserAndStatus( status, page, size);
+    }
+
+    @QueryMapping
+    public ProductPageDto boughtProductsByUser(@Argument int page, @Argument int size) {
+        return productService.getBoughtProductsByUser(page,size);
+    }
+
+    @QueryMapping
+    public ProductPageDto getBorrowedProductsByUser(@Argument int page, @Argument int size) {
+        return productService.getBorrowedProductsByUser(page,size);
+    }
+
 
 }

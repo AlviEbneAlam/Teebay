@@ -3,6 +3,10 @@ type Query {
   productsByUserPaginated(page: Int!, size: Int!): ProductPage!
   allProductsPaginated(page: Int!, size: Int!): ProductPage!
   productById(productId: Int!):Product!
+  productsByUserAndStatus(page: Int!, size: Int!, status: String!): ProductPage!
+  boughtProductsByUser(page: Int!, size: Int!): ProductPage!
+  getBorrowedProductsByUser(page: Int!, size: Int!): ProductPage!
+
 }
 
 type Mutation {

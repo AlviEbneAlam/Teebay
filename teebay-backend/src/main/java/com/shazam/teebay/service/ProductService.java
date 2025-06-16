@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 import java.util.List;
@@ -329,5 +330,108 @@ public class ProductService {
             throw new GraphQLDataProcessingException("Failed to fetch product by ID", e);
         }
     }
+
+    @Transactional(readOnly = true)
+    public ProductPageDto getProductsByUserAndStatus( String status, int page, int size) {
+        String email="";
+        if (!status.equals("SOLD") && !status.equals("RENTED") && !status.equals("AVAILABLE")) {
+            throw new GraphQLValidationException("Invalid product status: " + status);
+        }
+
+        try {
+            email = SecurityContextHolder.getContext().getAuthentication().getName();
+            String finalEmail = email;
+            UserInfo user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found: " + finalEmail));
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Products> productPage = productRepository.findAllByUserIdAndAvailabilityStatus(user.getId(), status, pageable);
+
+            List<ProductDto> productDTOs = productPage.getContent().stream()
+                    .map(product -> mapToProductDto(product, true))
+                    .toList();
+
+            return new ProductPageDto(
+                    productDTOs,
+                    productPage.getTotalPages(),
+                    productPage.getTotalElements(),
+                    productPage.getNumber()
+            );
+        } catch (Exception ex) {
+            log.error("Failed to fetch products for user {} with status {}: {}", email, status, ex.getLocalizedMessage());
+            throw new GraphQLDataProcessingException("Could not fetch user products", ex);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ProductPageDto getBoughtProductsByUser( int page, int size) {
+
+        String email="";
+        try{
+            email = SecurityContextHolder.getContext().getAuthentication().getName();
+            String finalEmail = email;
+            UserInfo user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found for email: " + finalEmail));
+            List<Long> productIds = purchaseRepository.findProductIdsByBuyerId(user.getId());
+
+            if (productIds.isEmpty()) {
+                throw new GraphQLValidationException("No products found for this buyer");
+            }
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Products> productPage = productRepository.findAllByIdIn(productIds, pageable);
+
+            List<ProductDto> productDTOs = productPage.getContent().stream()
+                    .map(product -> mapToProductDto(product, true))
+                    .toList();
+
+            return new ProductPageDto(
+                    productDTOs,
+                    productPage.getTotalPages(),
+                    productPage.getTotalElements(),
+                    productPage.getNumber()
+            );
+        }
+        catch (Exception ex) {
+            log.error("Failed to fetch products for user {} FOR BOUGHT PRODUCTS: {}", email, ex.getLocalizedMessage());
+            throw new GraphQLDataProcessingException("Could not fetch user products", ex);
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public ProductPageDto getBorrowedProductsByUser(int page, int size) {
+        String email = "";
+        try {
+            email = SecurityContextHolder.getContext().getAuthentication().getName();
+            String finalEmail = email;
+            UserInfo user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found for email: " + finalEmail));
+
+            List<Long> productIds = rentBookingsRepository.findDistinctProductIdsByRenterId(user.getId());
+
+            if (productIds.isEmpty()) {
+                throw new GraphQLValidationException("No borrowed products found for this user");
+            }
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Products> productPage = productRepository.findAllByIdIn(productIds, pageable);
+
+            List<ProductDto> productDTOs = productPage.getContent().stream()
+                    .map(product -> mapToProductDto(product, true))
+                    .toList();
+
+            return new ProductPageDto(
+                    productDTOs,
+                    productPage.getTotalPages(),
+                    productPage.getTotalElements(),
+                    productPage.getNumber()
+            );
+        } catch (Exception ex) {
+            log.error("Failed to fetch borrowed products for user {}: {}", email, ex.getLocalizedMessage());
+            throw new GraphQLDataProcessingException("Could not fetch borrowed products", ex);
+        }
+    }
+
 
 }

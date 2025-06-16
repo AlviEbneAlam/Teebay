@@ -37,4 +37,6 @@ public class UserService {
 
         return new RegisterResponse(user.getId(), user.getEmail(), user.getFirstName());
     }
+
+
 }

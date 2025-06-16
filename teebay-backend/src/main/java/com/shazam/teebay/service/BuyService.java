@@ -3,6 +3,7 @@ package com.shazam.teebay.service;
 import com.shazam.teebay.dto.AddProductResponse;
 import com.shazam.teebay.entity.ProductPurchase;
 import com.shazam.teebay.entity.Products;
+import com.shazam.teebay.entity.RentBookings;
 import com.shazam.teebay.entity.UserInfo;
 import com.shazam.teebay.enums.ProductState;
 import com.shazam.teebay.exception.GraphQLValidationException;
@@ -13,6 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @Slf4j
 public class BuyService {
@@ -20,6 +24,7 @@ public class BuyService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductPurchaseRepository purchaseRepository;
+    private final RentBookingsRepository rentBookingsRepository;
 
     public BuyService(ProductRepository productRepository,
                      UserRepository userRepository,
@@ -29,6 +34,7 @@ public class BuyService {
         this.productRepository = productRepository;
         this.userRepository=userRepository;
         this.purchaseRepository=purchaseRepository;
+        this.rentBookingsRepository=rentBookingsRepository;
     }
 
     @Transactional
@@ -49,6 +55,21 @@ public class BuyService {
                 return new AddProductResponse("400", "Product has already been sold.");
             }
 
+            Optional<RentBookings> latestBookingOpt = rentBookingsRepository
+                    .findTopByProductIdOrderByRentStartTimeDesc(product.getId());
+            LocalDateTime rentStartTime;
+            LocalDateTime rentEndTime;
+
+
+            if (latestBookingOpt.isPresent()) {
+                RentBookings booking = latestBookingOpt.get();
+
+                // Check if rentEndTime is after now
+                if (booking.getRentEndTime().isAfter(LocalDateTime.now())) {
+                    return new AddProductResponse("400", "Product has an ongoing rent booking.");
+                }
+            }
+
             // Update product status
             product.setAvailabilityStatus(status);
             productRepository.save(product);
@@ -67,11 +88,11 @@ public class BuyService {
                     purchaseRepository.save(purchase);
                 } catch (DataIntegrityViolationException e) {
                     // This exception happens if unique constraint on product_id is violated
-                    return new AddProductResponse("400", "Product has already been sold (race condition prevented).");
+                    return new AddProductResponse("400", "Product has already been sold .");
                 }
             }
 
-            return new AddProductResponse("200", "Product marked as " + status);
+            return new AddProductResponse("200", "Product has been successfully purchased");
 
         } catch (GraphQLValidationException ex) {
             return new AddProductResponse("400", ex.getMessage());

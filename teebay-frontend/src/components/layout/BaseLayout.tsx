@@ -22,7 +22,16 @@ const BaseLayout = ({ children }: Props) => {
       <AppShell.Header>
         <Container size="xl" style={{ height: '100%' }}>
           <Group justify="space-between" align="center" style={{ height: '100%' }}>
-            <Text fw={700}>My App</Text>
+            <Text
+              fw={800}
+              style={{
+                color: '#3ddc97', 
+                fontFamily: 'Poppins, sans-serif',
+                fontSize: 20,
+              }}
+            >
+              Teebay
+            </Text>
             <Group>
               <Button
                 variant={location.pathname === '/allProducts' ? 'filled' : 'light'}

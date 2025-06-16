@@ -12,11 +12,14 @@ import { useForm } from '@mantine/form';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import { REGISTER_USER } from '../graphql/mutations';
+import { useNavigate } from 'react-router-dom';
+import { showNotification } from '@mantine/notifications';
 
 
 export function RegistrationForm() {
 
   const [registerUser] = useMutation(REGISTER_USER);
+  const navigate = useNavigate();
 
   const form = useForm({
     initialValues: {
@@ -46,6 +49,12 @@ export function RegistrationForm() {
     registerUser({ variables: { input } })
       .then((response) => {
         console.log('User registered:', response.data.register);
+        showNotification({
+        title: 'Success',
+        message: 'User successfully registered!',
+        color: 'green',
+      });
+        navigate('/');
         // Optionally redirect or show success message here
       })
       .catch((err) => {

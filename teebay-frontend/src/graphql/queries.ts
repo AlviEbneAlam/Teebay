@@ -56,3 +56,60 @@ export const PRODUCTS_BY_USER_PAGINATED = gql`
     }
   }
 `;
+
+export const BOUGHT_PRODUCTS_BY_USER = gql`
+  query BoughtProductsByUser($page: Int!, $size: Int!) {
+    boughtProductsByUser(page: $page, size: $size) {
+      products {
+        id
+        title
+        categories
+        sellingPrice
+        rent
+        typeOfRent
+        description
+        availabilityStatus
+        createdAt
+      }
+      totalPages
+    }
+  }
+`;
+
+export const BORROWED_PRODUCTS_BY_USER = gql`
+  query BorrowedProductsByUser($page: Int!, $size: Int!) {
+    getBorrowedProductsByUser(page: $page, size: $size) {
+      products {
+        id
+        title
+        categories
+        sellingPrice
+        rent
+        typeOfRent
+        description
+        availabilityStatus
+        createdAt
+      }
+      totalPages
+    }
+  }
+`;
+
+export const PRODUCTS_BY_USER_AND_STATUS = gql`
+  query ProductsByUserAndStatus($page: Int!, $size: Int!, $status: String!) {
+    productsByUserAndStatus(page: $page, size: $size, status: $status) {
+      products {
+        id
+        title
+        categories
+        sellingPrice
+        rent
+        typeOfRent
+        description
+        availabilityStatus
+        createdAt
+      }
+      totalPages
+    }
+  }
+`;

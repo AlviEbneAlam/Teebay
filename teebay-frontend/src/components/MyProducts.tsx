@@ -118,12 +118,19 @@ export const MyProducts: React.FC = () => {
     }));
   };
 
-  const handleDelete = () => {
-    if (productToDelete) {
-      deleteProduct({ variables: { productId: productToDelete.id } });
-    }
-  };
+  const handleDelete = async () => {
+  if (productToDelete) {
+    const { data } = await deleteProduct({
+      variables: { productId: productToDelete.id },
+    });
 
+    console.log('Delete response:', data);
+
+    if (data?.deleteProduct?.statusCode === "400") {
+      alert(data.deleteProduct.statusMessage); // Show the error message
+    }
+  }
+};
   return (
     <Container size="md" mt="md">
       <Group justify="space-between" mb="lg">

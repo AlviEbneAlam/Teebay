@@ -16,4 +16,7 @@ public interface RentBookingsRepository extends JpaRepository<RentBookings, Long
     @Query("SELECT DISTINCT rb.productId FROM RentBookings rb WHERE rb.renterId = :renterId")
     List<Long> findDistinctProductIdsByRenterId(@Param("renterId") Long renterId);
 
+    List<RentBookings> findByProductIdOrderByRentEndTimeDesc(Long productId);
+
+
 }

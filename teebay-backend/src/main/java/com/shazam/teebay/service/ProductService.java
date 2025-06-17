@@ -218,12 +218,12 @@ public class ProductService {
 
     @Transactional
     public AddProductResponse deleteProduct(Long productId) {
-        log.info("Attempting to delete product with ID: {}", productId);
+        log.info("Attempting to soft-delete product with ID: {}", productId);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         UserInfo user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("User not found for email: {}", email);
+                    log.warn("User not found for email in delete product: {}", email);
                     return new GraphQLValidationException("User not found: " + email);
                 });
 
@@ -235,27 +235,35 @@ public class ProductService {
 
         if (!product.getUserId().equals(user.getId())) {
             log.warn("User {} is not authorized to delete product ID: {}", email, productId);
-            throw new GraphQLValidationException("You are not authorized to delete this product.");
+            
+            return new AddProductResponse("400", "You are not authorized to delete this product.");
+        }
+
+        // 🔍 Check for ongoing bookings
+        List<RentBookings> bookings = rentBookingsRepository
+                .findByProductIdOrderByRentEndTimeDesc(productId);
+
+        if (!bookings.isEmpty()) {
+            RentBookings latestBooking = bookings.get(0);
+            if (latestBooking.getRentEndTime().isAfter(LocalDateTime.now())) {
+                log.warn("Product ID {} has ongoing booking until {}", productId, latestBooking.getRentEndTime());
+                return new AddProductResponse("400", "Cannot delete product with ongoing bookings");
+            }
         }
 
         try {
-            productCategoryRepository.deleteByProductId(productId);
-            log.info("Deleted product-category links for product ID: {}", productId);
+            product.setAvailabilityStatus(ProductState.DELETED.name());
+            productRepository.save(product);
+            log.info("Soft-deleted product by setting availability status to DELETED for ID: {}", productId);
 
-            if (product.getRentId() != null) {
-                rentRepository.deleteById(product.getRentId());
-                log.info("Deleted rent data for product ID: {}", productId);
-            }
-
-            productRepository.deleteById(productId);
-            log.info("Successfully deleted product with ID: {}", productId);
-
-            return new AddProductResponse("200", "Product deleted successfully with ID: " + productId);
+            return new AddProductResponse("200", "Product soft-deleted (status set to DELETED) for ID: " + productId);
         } catch (Exception e) {
-            log.error("Failed to delete product with ID {}: {}", productId, e.getLocalizedMessage(), e);
-            throw new GraphQLDataProcessingException("Failed to delete product", e);
+            log.error("Failed to soft-delete product with ID {}: {}", productId, e.getLocalizedMessage(), e);
+            return new AddProductResponse("400", "Cannot delete the product");
         }
     }
+
+
 
     private List<ProductDto> mapToDtoList(List<Products> products) {
         log.debug("Mapping list of {} products to DTOs", products.size());
@@ -409,7 +417,7 @@ public class ProductService {
             String finalEmail = email;
             UserInfo user = userRepository.findByEmail(email)
                     .orElseThrow(() -> {
-                        log.warn("Authenticated user not found for email: {}", finalEmail);
+                        log.warn("Authenticated user not found for email in get bought product: {}", finalEmail);
                         return new GraphQLValidationException("Authenticated user not found for email: " + finalEmail);
                     });
 

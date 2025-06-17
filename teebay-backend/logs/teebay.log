@@ -5632,3 +5632,33 @@ com.shazam.teebay.exception.GraphQLValidationException: Cannot delete product wi
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
 	at java.base/java.lang.Thread.run(Thread.java:840)
+2025-06-17 20:52:37 INFO  com.shazam.teebay.TeebayApplication [main] - Starting TeebayApplication using Java 17.0.13 with PID 5364 (E:\Teebay\teebay-backend\target\classes started by Alvi in E:\Teebay\teebay-backend)
+2025-06-17 20:52:37 INFO  com.shazam.teebay.TeebayApplication [main] - No active profile set, falling back to 1 default profile: "default"
+2025-06-17 20:52:51 INFO  com.shazam.teebay.TeebayApplication [main] - Started TeebayApplication in 15.957 seconds (process running for 17.06)
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Applying custom database schema changes...
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: CREATE EXTENSION IF NOT EXISTS btree_gist;
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'teebays' AND table_name = 'rent_bookings' AND column_name = 'period') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD COLUMN period tsrange GENERATED ALWAYS AS (tsrange(rent_start_time, rent_end_time, ''[]'')) STORED'; END IF; END $$;
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relname = 'idx_rent_bookings_period' AND n.nspname = 'teebays') THEN EXECUTE 'CREATE INDEX idx_rent_bookings_period ON teebays.rent_bookings USING GIST (product_id, period)'; END IF; END $$;
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'no_overlapping_bookings') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD CONSTRAINT no_overlapping_bookings EXCLUDE USING GIST (product_id WITH =, period WITH &&)'; END IF; END $$;
+2025-06-17 20:52:51 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Custom database schema changes applied successfully.
+2025-06-17 20:55:37 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-1] - Inside jwt filer 
+2025-06-17 20:55:37 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-2] - Inside jwt filer 
+2025-06-17 20:55:37 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-2] - After login mutation in jwt filer 
+2025-06-17 20:55:37 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-2] - Username in loadUserByUsername method: t88.alam@gmail.com
+2025-06-17 20:55:38 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-2] - Fetched 10 products for user ID: 1
+2025-06-17 20:55:44 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-3] - Inside jwt filer 
+2025-06-17 20:55:44 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-4] - Inside jwt filer 
+2025-06-17 20:55:44 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-4] - After login mutation in jwt filer 
+2025-06-17 20:55:44 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-4] - Username in loadUserByUsername method: t88.alam@gmail.com
+2025-06-17 20:55:44 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-4] - Attempting to soft-delete product with ID: 16
+2025-06-17 20:55:44 WARN  c.s.teebay.service.ProductService [http-nio-8082-exec-4] - Product ID 16 has ongoing booking until 2025-06-18T21:35
+2025-06-17 20:57:04 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-6] - Inside jwt filer 
+2025-06-17 20:57:04 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-7] - Inside jwt filer 
+2025-06-17 20:57:04 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-7] - After login mutation in jwt filer 
+2025-06-17 20:57:04 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-7] - Username in loadUserByUsername method: t88.alam@gmail.com
+2025-06-17 20:57:05 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-7] - Fetched 10 products for user ID: 1
+2025-06-17 20:57:08 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-8] - Inside jwt filer 
+2025-06-17 20:57:08 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-8] - After login mutation in jwt filer 
+2025-06-17 20:57:08 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-8] - Username in loadUserByUsername method: t88.alam@gmail.com
+2025-06-17 20:57:08 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-8] - Attempting to soft-delete product with ID: 16
+2025-06-17 20:57:08 WARN  c.s.teebay.service.ProductService [http-nio-8082-exec-8] - Product ID 16 has ongoing booking until 2025-06-18T21:35

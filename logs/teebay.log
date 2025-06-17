@@ -85,3 +85,31 @@ ERROR in ch.qos.logback.classic.pattern.ClassOfCallerConverter@1afdd473 - failed
 2025-06-17 11:20:50,533 INFO c.s.t.s.JwtUserDetailsService [http-nio-8082-exec-2] Username in loadUserByUsername method: nantu@gmail.com
 2025-06-17 11:20:50,542 INFO c.s.t.s.ProductService [http-nio-8082-exec-2] Fetching all products by status: AVAILABLE and RENTED, page: 0, size: 10
 2025-06-17 11:20:50,560 INFO c.s.t.s.ProductService [http-nio-8082-exec-2] Fetched 9 products by status
+2025-06-17 11:22:01 INFO  com.shazam.teebay.TeebayApplication [main] - Starting TeebayApplication using Java 21.0.1 with PID 19912 (E:\Teebay\teebay-backend\target\classes started by Alvi in E:\teebay)
+2025-06-17 11:22:01 INFO  com.shazam.teebay.TeebayApplication [main] - No active profile set, falling back to 1 default profile: "default"
+2025-06-17 11:22:15 INFO  com.shazam.teebay.TeebayApplication [main] - Started TeebayApplication in 14.886 seconds (process running for 15.367)
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Applying custom database schema changes...
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: CREATE EXTENSION IF NOT EXISTS btree_gist;
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'teebays' AND table_name = 'rent_bookings' AND column_name = 'period') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD COLUMN period tsrange GENERATED ALWAYS AS (tsrange(rent_start_time, rent_end_time, ''[]'')) STORED'; END IF; END $$;
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relname = 'idx_rent_bookings_period' AND n.nspname = 'teebays') THEN EXECUTE 'CREATE INDEX idx_rent_bookings_period ON teebays.rent_bookings USING GIST (product_id, period)'; END IF; END $$;
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'no_overlapping_bookings') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD CONSTRAINT no_overlapping_bookings EXCLUDE USING GIST (product_id WITH =, period WITH &&)'; END IF; END $$;
+2025-06-17 11:22:15 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Custom database schema changes applied successfully.
+2025-06-17 11:22:29 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-1] - Inside jwt filer 
+2025-06-17 11:22:29 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-2] - Inside jwt filer 
+2025-06-17 11:22:29 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-2] - After login mutation in jwt filer 
+2025-06-17 11:22:29 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-2] - Username in loadUserByUsername method: nantu@gmail.com
+2025-06-17 11:22:29 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-2] - Fetched 0 products for user ID: 10
+2025-06-17 11:22:30 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-3] - Inside jwt filer 
+2025-06-17 11:22:30 INFO  c.s.teebay.filter.JwtRequestFilter [http-nio-8082-exec-3] - After login mutation in jwt filer 
+2025-06-17 11:22:30 INFO  c.s.t.service.JwtUserDetailsService [http-nio-8082-exec-3] - Username in loadUserByUsername method: nantu@gmail.com
+2025-06-17 11:22:30 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-3] - Fetching all products by status: AVAILABLE and RENTED, page: 0, size: 10
+2025-06-17 11:22:30 INFO  c.s.teebay.service.ProductService [http-nio-8082-exec-3] - Fetched 9 products by status
+2025-06-17 12:41:47 INFO  com.shazam.teebay.TeebayApplication [main] - Starting TeebayApplication using Java 21.0.1 with PID 14992 (E:\Teebay\teebay-backend\target\classes started by Alvi in E:\teebay)
+2025-06-17 12:41:47 INFO  com.shazam.teebay.TeebayApplication [main] - No active profile set, falling back to 1 default profile: "default"
+2025-06-17 12:41:55 INFO  com.shazam.teebay.TeebayApplication [main] - Started TeebayApplication in 8.334 seconds (process running for 12.322)
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Applying custom database schema changes...
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: CREATE EXTENSION IF NOT EXISTS btree_gist;
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'teebays' AND table_name = 'rent_bookings' AND column_name = 'period') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD COLUMN period tsrange GENERATED ALWAYS AS (tsrange(rent_start_time, rent_end_time, ''[]'')) STORED'; END IF; END $$;
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relname = 'idx_rent_bookings_period' AND n.nspname = 'teebays') THEN EXECUTE 'CREATE INDEX idx_rent_bookings_period ON teebays.rent_bookings USING GIST (product_id, period)'; END IF; END $$;
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Executing SQL: DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'no_overlapping_bookings') THEN EXECUTE 'ALTER TABLE teebays.rent_bookings ADD CONSTRAINT no_overlapping_bookings EXCLUDE USING GIST (product_id WITH =, period WITH &&)'; END IF; END $$;
+2025-06-17 12:41:55 INFO  c.s.t.C.DatabaseSchemaInitializer [main] - Custom database schema changes applied successfully.

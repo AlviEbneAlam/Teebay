@@ -23,6 +23,7 @@ public class JwtTokenUtil implements Serializable {
 
 	private static final long serialVersionUID = -2550185165626007488L;
 	public static final long JWT_TOKEN_VALIDITY = 5*60*60;
+	public static final long REFRESH_TOKEN_VALIDITY = 7 * 24 * 60 * 60;
 	private Claims claims;
 
 
@@ -69,6 +70,15 @@ public class JwtTokenUtil implements Serializable {
 		//claims.put("validated",jwtRequest.getValidated());
 
 		return doGenerateToken(claims, userDetails.getUsername());
+	}
+
+	public String generateRefreshToken(UserDetails userDetails) {
+		return Jwts.builder()
+				.setSubject(userDetails.getUsername())
+				.setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY * 1000))
+				.signWith(SignatureAlgorithm.HS512, secret)
+				.compact();
 	}
 
 	private String doGenerateToken(Map<String, Object> claims, String subject) {

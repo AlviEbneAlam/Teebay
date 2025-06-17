@@ -12,7 +12,8 @@ export const LOGIN_USER = gql`
 export const REGISTER_USER = gql`
   mutation RegisterUser($input: RegisterInput!) {
     register(userInfo: $input) {
-      id
+      statusCode
+      message
       email
       firstName
     }

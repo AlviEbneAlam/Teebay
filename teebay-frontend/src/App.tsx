@@ -12,10 +12,12 @@ import {EditProductForm} from './components/Form/EditProductForm';
 import {MyActivity} from './components/MyActivity';
 import '@mantine/core/styles.css';
 import BaseLayout from './components/layout/BaseLayout';
+import { Notifications } from '@mantine/notifications';
 
 function App() {
   return (
     <MantineProvider>
+      <Notifications position="top-right" />
       <Router>
         <AuthProvider>
           <Routes>

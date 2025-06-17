@@ -13,8 +13,6 @@ import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import { REGISTER_USER } from '../graphql/mutations';
 import { useNavigate } from 'react-router-dom';
-import { showNotification } from '@mantine/notifications';
-
 
 export function RegistrationForm() {
 
@@ -39,6 +37,10 @@ export function RegistrationForm() {
         value.length < 8 ? 'Password must be at least 8 characters' : null,
       confirmPassword: (value, values) =>
         value !== values.password ? 'Passwords do not match' : null,
+      phoneNumber: (value) =>
+      /^01[0-9]{9}$/.test(value)
+        ? null
+        : 'Phone number must be 11 digits and start with 01',
     },
   });
 
@@ -48,19 +50,23 @@ export function RegistrationForm() {
 
     registerUser({ variables: { input } })
       .then((response) => {
-        console.log('User registered:', response.data.register);
-        showNotification({
-        title: 'Success',
-        message: 'User successfully registered!',
-        color: 'green',
-      });
-        navigate('/');
-        // Optionally redirect or show success message here
+        const { statusCode } = response.data.register;
+
+        if (statusCode === "0") {
+          alert('User registered successfully');
+        } else {
+          alert('Failed to register user');
+        }
       })
       .catch((err) => {
         console.error('Registration error:', err);
+        alert('Failed to register user');
+      })
+      .finally(() => {
+        // This will always run regardless of success or error
+        setTimeout(() => navigate('/'), 300);
       });
-  };
+    }
 
 
   return (

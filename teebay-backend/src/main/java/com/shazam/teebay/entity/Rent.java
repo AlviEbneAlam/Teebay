@@ -6,7 +6,7 @@ import lombok.Data;
 
 
 @Entity
-@Table(name = "rent", schema = "teebays")
+@Table(name = "rent")
 @Data
 public class Rent {
 

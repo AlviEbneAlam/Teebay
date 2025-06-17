@@ -1,5 +1,5 @@
 package com.shazam.teebay.dto;
 
-public record RegisterResponse(Long id, String email, String firstName) {
+public record RegisterResponse(String statusCode, String message, String email, String firstName) {
 
 }

@@ -57,18 +57,19 @@ public class ProductService {
 
     @Transactional
     public AddProductResponse addProduct(AddProductRequest request) {
+        log.info("Attempting to add product for request: {}", request);
         try {
-
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            log.debug("Authenticated user email: {}", email);
 
             UserInfo user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new GraphQLValidationException("User not found: " + email));
 
             Products product = new Products();
-            populateProductFromRequest(product, request,user.getId());
+            populateProductFromRequest(product, request, user.getId());
             Products savedProduct = productRepository.save(product);
+            log.info("Product saved with ID: {}", savedProduct.getId());
 
-            // Save product-category mappings
             for (String name : request.categoriesList()) {
                 Category category = categoryRepository.findByName(name)
                         .orElseThrow(() -> new GraphQLValidationException("Category not found: " + name));
@@ -76,29 +77,33 @@ public class ProductService {
                 mapping.setProductId(savedProduct.getId());
                 mapping.setCategoryId(category.getId());
                 productCategoryRepository.save(mapping);
+                log.debug("Mapped category '{}' to product ID {} in add product", name, savedProduct.getId());
             }
 
             return new AddProductResponse("200", "Product added successfully with ID: " + savedProduct.getId());
         } catch (GraphQLValidationException e) {
+            log.warn("Validation failed while adding product: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
+            log.error("Unexpected error while adding product", e);
             throw new GraphQLDataProcessingException("Failed to add product", e);
         }
     }
 
     @Transactional
     public AddProductResponse editProduct(Long productId, AddProductRequest request) {
+        log.info("Attempting to edit product with ID: {}", productId);
         try {
             Products existing = productRepository.findById(productId)
                     .orElseThrow(() -> new GraphQLValidationException("Product not found with ID: " + productId));
 
             populateProductFromRequest(existing, request, existing.getUserId());
             Products updatedProduct = productRepository.save(existing);
+            log.info("Product updated with ID: {}", updatedProduct.getId());
 
-            // Delete old mappings
             productCategoryRepository.deleteByProductId(productId);
+            log.debug("Deleted existing category mappings for product ID: {}", productId);
 
-            // Save new mappings
             for (String name : request.categoriesList()) {
                 Category category = categoryRepository.findByName(name)
                         .orElseThrow(() -> new GraphQLValidationException("Category not found: " + name));
@@ -106,17 +111,21 @@ public class ProductService {
                 mapping.setProductId(productId);
                 mapping.setCategoryId(category.getId());
                 productCategoryRepository.save(mapping);
+                log.debug("Mapped category '{}' to product ID {} in edit product", name, productId);
             }
 
             return new AddProductResponse("200", "Product updated successfully with ID: " + updatedProduct.getId());
         } catch (GraphQLValidationException e) {
+            log.warn("Validation failed while editing product ID {}: {}", productId, e.getMessage());
             throw e;
         } catch (Exception e) {
+            log.error("Unexpected error while editing product ID {}", productId, e);
             throw new GraphQLDataProcessingException("Failed to update product", e);
         }
     }
 
     private void populateProductFromRequest(Products product, AddProductRequest request, Long userId) {
+        log.debug("Populating product object from request: {}", request);
         product.setTitle(request.title());
         product.setDescription(request.description());
         product.setSellingPrice(request.sellingPrice());
@@ -125,9 +134,10 @@ public class ProductService {
 
         if (product.getId() != null) {
             productCategoryRepository.deleteByProductId(product.getId());
+            log.debug("Deleted category mappings for product ID during update: {}", product.getId());
         }
 
-        if ( request.rent() > 0) {
+        if (request.rent() > 0) {
             Rent rent = product.getRentId() != null
                     ? rentRepository.findById(product.getRentId()).orElse(new Rent())
                     : new Rent();
@@ -136,16 +146,18 @@ public class ProductService {
             rent.setTypeOfRent(parseTypeOfRent(request.typeOfRent()));
             Rent savedRent = rentRepository.save(rent);
             product.setRentId(savedRent.getId());
+            log.debug("Saved rent info for product ID: {} with rent ID: {}", product.getId(), savedRent.getId());
         } else {
             product.setRentId(null);
+            log.debug("Cleared rent info for product ID: {}", product.getId());
         }
     }
-
 
     private TypeOfRent parseTypeOfRent(String value) {
         try {
             return TypeOfRent.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid typeOfRent received: {}", value);
             throw new GraphQLValidationException("Invalid typeOfRent value: " + value);
         }
     }
@@ -153,40 +165,42 @@ public class ProductService {
     @Transactional
     public ProductPageDto getProductsByUserPaginated(int page, int size) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.debug("Fetching paginated products for user: {}", email);
 
         UserInfo user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found: " + email));
 
-        Page<Products> productPage;
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            productPage = productRepository.findAllByUserId(user.getId(), pageable);
+            Page<Products> productPage = productRepository.findAllByUserId(user.getId(), pageable);
+            List<ProductDto> productDTOs = mapToDtoList(productPage.getContent());
+            log.info("Fetched {} products for user ID: {}", productDTOs.size(), user.getId());
+
+            return new ProductPageDto(
+                    productDTOs,
+                    productPage.getTotalPages(),
+                    productPage.getTotalElements(),
+                    productPage.getNumber()
+            );
         } catch (Exception ex) {
-            log.info("Exception while fetching product by user id: {}", ex.getLocalizedMessage());
+            log.error("Error while fetching products for user ID {}: {}", user.getId(), ex.getMessage(), ex);
             throw new GraphQLDataProcessingException("Could not fetch user products", ex);
         }
-
-        List<ProductDto> productDTOs = mapToDtoList(productPage.getContent());
-
-        return new ProductPageDto(
-                productDTOs,
-                productPage.getTotalPages(),
-                productPage.getTotalElements(),
-                productPage.getNumber()
-        );
     }
+
 
     @Transactional(readOnly = true)
     public ProductPageDto getAllProductsByStatus(int page, int size) {
-
+        log.info("Fetching all products by status: AVAILABLE and RENTED, page: {}, size: {}", page, size);
         List<String> statuses = List.of(ProductState.AVAILABLE.name(), ProductState.RENTED.name());
 
         Page<Products> productPage;
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
             productPage = productRepository.findAllByAvailabilityStatusIn(statuses, pageable);
+            log.info("Fetched {} products by status", productPage.getContent().size());
         } catch (Exception ex) {
-            log.error("Exception while fetching available and rented products: {}", ex.getLocalizedMessage());
+            log.error("Exception while fetching available and rented products: {}", ex.getLocalizedMessage(), ex);
             throw new GraphQLDataProcessingException("Could not fetch products", ex);
         }
 
@@ -204,44 +218,55 @@ public class ProductService {
 
     @Transactional
     public AddProductResponse deleteProduct(Long productId) {
+        log.info("Attempting to delete product with ID: {}", productId);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         UserInfo user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new GraphQLValidationException("User not found: " + email));
+                .orElseThrow(() -> {
+                    log.warn("User not found for email: {}", email);
+                    return new GraphQLValidationException("User not found: " + email);
+                });
 
         Products product = productRepository.findById(productId)
-                .orElseThrow(() -> new GraphQLValidationException("Product not found with ID: " + productId));
+                .orElseThrow(() -> {
+                    log.warn("Product not found with ID: {}", productId);
+                    return new GraphQLValidationException("Product not found with ID: " + productId);
+                });
 
         if (!product.getUserId().equals(user.getId())) {
+            log.warn("User {} is not authorized to delete product ID: {}", email, productId);
             throw new GraphQLValidationException("You are not authorized to delete this product.");
         }
 
         try {
-            // Delete category mappings
             productCategoryRepository.deleteByProductId(productId);
+            log.info("Deleted product-category links for product ID: {}", productId);
 
-            // Delete rent if exists
             if (product.getRentId() != null) {
                 rentRepository.deleteById(product.getRentId());
+                log.info("Deleted rent data for product ID: {}", productId);
             }
 
-            // Delete the product
             productRepository.deleteById(productId);
+            log.info("Successfully deleted product with ID: {}", productId);
 
             return new AddProductResponse("200", "Product deleted successfully with ID: " + productId);
         } catch (Exception e) {
+            log.error("Failed to delete product with ID {}: {}", productId, e.getLocalizedMessage(), e);
             throw new GraphQLDataProcessingException("Failed to delete product", e);
         }
     }
 
     private List<ProductDto> mapToDtoList(List<Products> products) {
+        log.debug("Mapping list of {} products to DTOs", products.size());
         return products.stream()
-                .map(product -> mapToProductDto(product, false)) // no booking info needed
+                .map(product -> mapToProductDto(product, false))
                 .toList();
     }
 
-
     private ProductDto mapToProductDto(Products product, boolean includeBookingInfo) {
+        log.debug("Mapping product ID: {} to DTO. includeBookingInfo: {}", product.getId(), includeBookingInfo);
+
         List<Long> categoryIds = productCategoryRepository.findByProductId(product.getId()).stream()
                 .map(ProductCategory::getCategoryId)
                 .toList();
@@ -273,21 +298,17 @@ public class ProductService {
             if (latestBookingOpt.isPresent()) {
                 RentBookings booking = latestBookingOpt.get();
 
-                // Check if rentEndTime is after now
                 if (booking.getRentEndTime().isAfter(LocalDateTime.now())) {
-                    // Still rented: keep start/end times
                     rentStartTime = booking.getRentStartTime();
                     rentEndTime = booking.getRentEndTime();
                 } else {
-                    // Rental period is over: update status to AVAILABLE
+                    log.info("Rental period is over for product ID: {}. Updating status to AVAILABLE.", product.getId());
                     availabilityStatus = "AVAILABLE";
-
-                    // Optionally update the product entity in DB immediately
                     product.setAvailabilityStatus("AVAILABLE");
                     productRepository.save(product);
                 }
             } else {
-                // No bookings found: also mark available
+                log.info("No valid booking found for product ID: {}. Updating status to AVAILABLE.", product.getId());
                 availabilityStatus = "AVAILABLE";
                 product.setAvailabilityStatus("AVAILABLE");
                 productRepository.save(product);
@@ -311,30 +332,37 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDto getProductById(Long productId) {
+        log.info("Fetching product by ID: {}", productId);
         try {
-
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
             UserInfo user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new GraphQLValidationException("User not found: " + email));
-
+                    .orElseThrow(() -> {
+                        log.warn("User not found for email: {}", email);
+                        return new GraphQLValidationException("User not found: " + email);
+                    });
 
             Products product = productRepository.findByIdAndUserId(productId, user.getId())
-                    .orElseThrow(() -> new GraphQLValidationException("Product not found with ID: " + productId + " for user: " + email));
+                    .orElseThrow(() -> {
+                        log.warn("Product not found with ID: {} for user: {}", productId, email);
+                        return new GraphQLValidationException("Product not found with ID: " + productId + " for user: " + email);
+                    });
 
             return mapToProductDto(product, true);
-
         } catch (GraphQLValidationException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Error fetching product by ID {}: {}", productId, e.getLocalizedMessage(), e);
             throw new GraphQLDataProcessingException("Failed to fetch product by ID", e);
         }
     }
 
     @Transactional(readOnly = true)
-    public ProductPageDto getProductsByUserAndStatus( String status, int page, int size) {
-        String email="";
+    public ProductPageDto getProductsByUserAndStatus(String status, int page, int size) {
+        log.info("Fetching products by user and status: {}, page: {}, size: {}", status, page, size);
+        String email = "";
         if (!status.equals("SOLD") && !status.equals("RENTED") && !status.equals("AVAILABLE")) {
+            log.warn("Invalid product status requested: {}", status);
             throw new GraphQLValidationException("Invalid product status: " + status);
         }
 
@@ -342,10 +370,14 @@ public class ProductService {
             email = SecurityContextHolder.getContext().getAuthentication().getName();
             String finalEmail = email;
             UserInfo user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found: " + finalEmail));
+                    .orElseThrow(() -> {
+                        log.warn("Authenticated user not found: {}", finalEmail);
+                        return new GraphQLValidationException("Authenticated user not found: " + finalEmail);
+                    });
 
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
             Page<Products> productPage = productRepository.findAllByUserIdAndAvailabilityStatus(user.getId(), status, pageable);
+            log.info("Found {} products with status {}", productPage.getContent().size(), status);
 
             List<ProductDto> productDTOs = productPage.getContent().stream()
                     .map(product -> mapToProductDto(product, true))
@@ -358,60 +390,39 @@ public class ProductService {
                     productPage.getNumber()
             );
         } catch (Exception ex) {
-            log.error("Failed to fetch products for user {} with status {}: {}", email, status, ex.getLocalizedMessage());
-            throw new GraphQLDataProcessingException("Could not fetch user products", ex);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public ProductPageDto getBoughtProductsByUser( int page, int size) {
-
-        String email="";
-        try{
-            email = SecurityContextHolder.getContext().getAuthentication().getName();
-            String finalEmail = email;
-            UserInfo user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found for email: " + finalEmail));
-            List<Long> productIds = purchaseRepository.findProductIdsByBuyerId(user.getId());
-
-            if (productIds.isEmpty()) {
-                throw new GraphQLValidationException("No products found for this buyer");
-            }
-
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            Page<Products> productPage = productRepository.findAllByIdIn(productIds, pageable);
-
-            List<ProductDto> productDTOs = productPage.getContent().stream()
-                    .map(product -> mapToProductDto(product, true))
-                    .toList();
-
+            log.error("Failed to fetch products for user {} with status {}: {}", email, status, ex.getLocalizedMessage(), ex);
             return new ProductPageDto(
-                    productDTOs,
-                    productPage.getTotalPages(),
-                    productPage.getTotalElements(),
-                    productPage.getNumber()
+                    new ArrayList<>(),
+                    0,
+                    0,
+                    0
             );
         }
-        catch (Exception ex) {
-            log.error("Failed to fetch products for user {} FOR BOUGHT PRODUCTS: {}", email, ex.getLocalizedMessage());
-            throw new GraphQLDataProcessingException("Could not fetch user products", ex);
-        }
-
     }
 
     @Transactional(readOnly = true)
-    public ProductPageDto getBorrowedProductsByUser(int page, int size) {
+    public ProductPageDto getBoughtProductsByUser(int page, int size) {
+        log.info("Fetching bought products, page: {}, size: {}", page, size);
         String email = "";
         try {
             email = SecurityContextHolder.getContext().getAuthentication().getName();
             String finalEmail = email;
             UserInfo user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new GraphQLValidationException("Authenticated user not found for email: " + finalEmail));
+                    .orElseThrow(() -> {
+                        log.warn("Authenticated user not found for email: {}", finalEmail);
+                        return new GraphQLValidationException("Authenticated user not found for email: " + finalEmail);
+                    });
 
-            List<Long> productIds = rentBookingsRepository.findDistinctProductIdsByRenterId(user.getId());
+            List<Long> productIds = purchaseRepository.findProductIdsByBuyerId(user.getId());
+            log.info("User {} has bought {} products", email, productIds.size());
 
             if (productIds.isEmpty()) {
-                throw new GraphQLValidationException("No borrowed products found for this user");
+                return new ProductPageDto(
+                        new ArrayList<>(),
+                        0,
+                        0,
+                        0
+                );
             }
 
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -428,10 +439,65 @@ public class ProductService {
                     productPage.getNumber()
             );
         } catch (Exception ex) {
-            log.error("Failed to fetch borrowed products for user {}: {}", email, ex.getLocalizedMessage());
-            throw new GraphQLDataProcessingException("Could not fetch borrowed products", ex);
+            log.error("Failed to fetch bought products for user {}: {}", email, ex.getLocalizedMessage(), ex);
+            return new ProductPageDto(
+                    new ArrayList<>(),
+                    0,
+                    0,
+                    0
+            );
         }
     }
+
+    @Transactional(readOnly = true)
+    public ProductPageDto getBorrowedProductsByUser(int page, int size) {
+        log.info("Fetching borrowed products, page: {}, size: {}", page, size);
+        String email = "";
+        try {
+            email = SecurityContextHolder.getContext().getAuthentication().getName();
+            String finalEmail = email;
+            UserInfo user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> {
+                        log.warn("Authenticated user not found for email: {}", finalEmail);
+                        return new GraphQLValidationException("Authenticated user not found for email: " + finalEmail);
+                    });
+
+            List<Long> productIds = rentBookingsRepository.findDistinctProductIdsByRenterId(user.getId());
+            log.info("User {} has borrowed {} products", email, productIds.size());
+
+            if (productIds.isEmpty()) {
+                return new ProductPageDto(
+                        new ArrayList<>(),
+                        0,
+                        0,
+                        0
+                );
+            }
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Products> productPage = productRepository.findAllByIdIn(productIds, pageable);
+
+            List<ProductDto> productDTOs = productPage.getContent().stream()
+                    .map(product -> mapToProductDto(product, true))
+                    .toList();
+
+            return new ProductPageDto(
+                    productDTOs,
+                    productPage.getTotalPages(),
+                    productPage.getTotalElements(),
+                    productPage.getNumber()
+            );
+        } catch (Exception ex) {
+            log.error("Failed to fetch borrowed products for user {}: {}", email, ex.getLocalizedMessage(), ex);
+            return new ProductPageDto(
+                    new ArrayList<>(),
+                    0,
+                    0,
+                    0
+            );
+        }
+    }
+
 
 
 }

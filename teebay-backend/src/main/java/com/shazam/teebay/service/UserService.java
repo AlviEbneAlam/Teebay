@@ -25,18 +25,24 @@ public class UserService {
     }
 
     public RegisterResponse register(UserInfoRec userInfoRec) {
+
         UserInfo user = new UserInfo();
-        user.setFirstName(userInfoRec.firstName());
-        user.setLastName(userInfoRec.lastName());
-        user.setAddress(userInfoRec.address());
-        user.setPhoneNumber(userInfoRec.phoneNumber());
-        user.setEmail(userInfoRec.email());
-        user.setPassword(passwordEncoder.encode(userInfoRec.password()));
+        try{
 
-        userRepository.save(user);
+            user.setFirstName(userInfoRec.firstName());
+            user.setLastName(userInfoRec.lastName());
+            user.setAddress(userInfoRec.address());
+            user.setPhoneNumber(userInfoRec.phoneNumber());
+            user.setEmail(userInfoRec.email());
+            user.setPassword(passwordEncoder.encode(userInfoRec.password()));
 
-        return new RegisterResponse(user.getId(), user.getEmail(), user.getFirstName());
+            userRepository.save(user);
+
+            return new RegisterResponse("0", "Success",  user.getEmail(), user.getFirstName());
+        }
+        catch(Exception ex){
+            return new RegisterResponse("1", "Failed", userInfoRec.email(), userInfoRec.firstName());
+        }
     }
-
 
 }

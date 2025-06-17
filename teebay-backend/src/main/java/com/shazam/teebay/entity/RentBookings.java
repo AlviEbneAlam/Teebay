@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Table(schema = "teebays",
+@Table(
         indexes = {
                 @Index(name = "idx_rent_start_time", columnList = "rent_start_time"),
                 @Index(name = "idx_rent_end_time", columnList = "rent_end_time")

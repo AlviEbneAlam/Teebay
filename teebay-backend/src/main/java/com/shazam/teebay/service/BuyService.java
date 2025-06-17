@@ -40,39 +40,40 @@ public class BuyService {
     @Transactional
     public AddProductResponse buyProduct(Long productId, String status) {
 
+        log.debug("Attempting to purchase product ID {} with status '{}'", productId, status);
+
         try {
             ProductState.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid availability status '{}' for product ID {}", status, productId);
             throw new GraphQLValidationException("Invalid availability status: " + status);
         }
 
         try {
+            log.debug("Fetching product with ID {}", productId);
             Products product = productRepository.findById(productId)
                     .orElseThrow(() -> new GraphQLValidationException("Product not found"));
 
             boolean alreadySold = purchaseRepository.existsByProductId(productId);
             if (alreadySold) {
+                log.warn("Product ID {} is already sold", productId);
                 return new AddProductResponse("400", "Product has already been sold.");
             }
 
             Optional<RentBookings> latestBookingOpt = rentBookingsRepository
                     .findTopByProductIdOrderByRentStartTimeDesc(product.getId());
-            LocalDateTime rentStartTime;
-            LocalDateTime rentEndTime;
-
 
             if (latestBookingOpt.isPresent()) {
                 RentBookings booking = latestBookingOpt.get();
-
-                // Check if rentEndTime is after now
                 if (booking.getRentEndTime().isAfter(LocalDateTime.now())) {
+                    log.warn("Product ID {} has an ongoing rent booking", productId);
                     return new AddProductResponse("400", "Product has an ongoing rent booking.");
                 }
             }
 
-            // Update product status
             product.setAvailabilityStatus(status);
             productRepository.save(product);
+            log.info("Updated availability status of product ID {} to {}", productId, status);
 
             if ("SOLD".equalsIgnoreCase(status)) {
                 String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -83,11 +84,11 @@ public class BuyService {
                 purchase.setProductId(productId);
                 purchase.setBuyerId(buyer.getId());
 
-                // Save purchase and catch unique constraint violation
                 try {
                     purchaseRepository.save(purchase);
+                    log.info("Recorded purchase of product ID {} by user {}", productId, email);
                 } catch (DataIntegrityViolationException e) {
-                    // This exception happens if unique constraint on product_id is violated
+                    log.warn("Duplicate purchase attempt for product ID {}", productId);
                     return new AddProductResponse("400", "Product has already been sold .");
                 }
             }
@@ -95,9 +96,10 @@ public class BuyService {
             return new AddProductResponse("200", "Product has been successfully purchased");
 
         } catch (GraphQLValidationException ex) {
+            log.warn("Validation error during purchase of product ID {}: {}", productId, ex.getMessage());
             return new AddProductResponse("400", ex.getMessage());
         } catch (Exception ex) {
-            log.error("Unexpected error while changing product status: {}", ex.getMessage(), ex);
+            log.error("Unexpected error while changing product status for product ID {}: {}", productId, ex.getMessage(), ex);
             return new AddProductResponse("500", "Internal server error");
         }
     }

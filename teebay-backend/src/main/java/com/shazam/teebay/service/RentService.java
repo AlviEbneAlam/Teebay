@@ -59,26 +59,28 @@ public class RentService {
         LocalDateTime startDate = LocalDateTime.parse(rentStart, formatter);
         LocalDateTime endDate = LocalDateTime.parse(rentEnd, formatter);
 
+        log.debug("Attempting to book product ID {} from {} to {} (noOfHours={})", productId, rentStart, rentEnd, noOfHours);
+
         if (endDate.isBefore(startDate) || startDate.isBefore(now)) {
+            log.warn("Invalid rental period for product ID {}: start={}, end={}, now={}", productId, startDate, endDate, now);
             return new AddProductResponse("400", "Invalid rental period");
         }
 
-        //Same day booking
         if (startDate.toLocalDate().equals(now.toLocalDate()) &&
                 now.toLocalTime().isAfter(LocalTime.of(10, 0))) {
-            return new AddProductResponse("400",
-                    "Same‑day rentals must be booked before 10:00 AM");
+            log.warn("Same-day booking rejected after 10:00 AM for product ID {}", productId);
+            return new AddProductResponse("400", "Same‑day rentals must be booked before 10:00 AM");
         }
 
         try {
-
+            log.debug("Fetching product with ID {} and status AVAILABLE/RENTED", productId);
             Products product = productRepository
                     .findByIdAndAvailabilityStatusIn(productId, List.of("AVAILABLE", "RENTED"))
                     .orElseThrow(() -> new GraphQLValidationException("Product not available"));
 
+            log.debug("Fetching rent info for rent ID {}", product.getRentId());
             Rent rent = rentRepository.findById(product.getRentId())
                     .orElseThrow(() -> new GraphQLValidationException("Rent info missing"));
-
 
             Duration duration = Duration.between(startDate, endDate);
             long units;
@@ -87,13 +89,13 @@ public class RentService {
             } else {
                 units = duration.toDays() + (duration.toHoursPart() > 0 ? 1 : 0);
             }
-            double total = units * rent.getRentPrice();
 
+            double total = units * rent.getRentPrice();
+            log.debug("Calculated rent: units={} total={}", units, total);
 
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             UserInfo renter = userRepository.findByEmail(email)
                     .orElseThrow(() -> new GraphQLValidationException("User not found"));
-
 
             RentBookings booking = new RentBookings();
             booking.setProductId(productId);
@@ -106,10 +108,12 @@ public class RentService {
             booking.setTotalRent(total);
             booking.setRentStatus(RentStatus.BOOKED);
 
+            log.debug("Saving rent booking for product ID {} by user ID {}", productId, renter.getId());
             rentBookingsRepository.save(booking);
 
             product.setAvailabilityStatus("RENTED");
             productRepository.save(product);
+            log.info("Successfully booked product ID {} for user {}", productId, email);
 
             return new AddProductResponse("200",
                     String.format("Booked %d %s; total rent: %.2f",
@@ -117,17 +121,17 @@ public class RentService {
                             rent.getTypeOfRent() == TypeOfRent.PER_HOUR ? "hour(s)" : "day(s)",
                             total));
 
-        }
-        catch(DataIntegrityViolationException ex){
-            log.info("Encountered exception while inserting bookings: {}", ex.getLocalizedMessage());
+        } catch (DataIntegrityViolationException ex) {
+            log.warn("Conflict while booking product ID {}: {}", productId, ex.getLocalizedMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new AddProductResponse("400", "Product already booked for this period");
-        }
-        catch (GraphQLValidationException ex) {
+        } catch (GraphQLValidationException ex) {
+            log.warn("Validation failed while booking product ID {}: {}", productId, ex.getMessage());
             return new AddProductResponse("400", ex.getMessage());
         } catch (Exception ex) {
-            log.error("Error booking rental", ex);
+            log.error("Unexpected error while booking product ID {}", productId, ex);
             return new AddProductResponse("500", "Internal server error");
         }
     }
+
 }

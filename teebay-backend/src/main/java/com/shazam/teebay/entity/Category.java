@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 @Entity
-@Table(name = "categories", schema = "teebays")
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
 public class Category {

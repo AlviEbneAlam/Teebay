@@ -31,9 +31,10 @@ input RegisterInput {
 }
 
 type RegisterResponse {
-  id: String!
-  email:String!
-  firstName: String!
+  statusCode: String
+  message: String
+  email:String
+  firstName: String
 }
 
 input JwtRequestInput {

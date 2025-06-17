@@ -7,10 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "product_purchases",
-        uniqueConstraints = @UniqueConstraint(columnNames = "product_id"),
-        indexes = {
-                @Index(name = "idx_productPurchase_purchased_at", columnList = "purchased_at")
-        }
+        uniqueConstraints = @UniqueConstraint(columnNames = "product_id")
 )
 @Data
 public class ProductPurchase {

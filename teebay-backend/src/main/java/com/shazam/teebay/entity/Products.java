@@ -6,11 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products",
-        indexes = {
-                @Index(name = "idx_products_created_at", columnList = "created_at"),
-                @Index(name = "idx_products_updated_at", columnList = "updated_at")
-        })
+@Table(name = "products")
 @Data
 public class Products {
 
@@ -29,7 +25,7 @@ public class Products {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "rent_id")
+    @Column(name = "rent_id") // plain foreign key, no @OneToOne
     private Long rentId;
 
     private String availabilityStatus;

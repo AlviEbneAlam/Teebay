@@ -7,6 +7,10 @@
     <list default="true" id="9e9bafe3-b56d-4f9b-a2aa-06d7abf2a17a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/teebay.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/teebay.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/Config/DatabaseSchemaInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/Config/DatabaseSchemaInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/ProductPurchase.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/ProductPurchase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Products.java" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-backend/src/main/java/com/shazam/teebay/entity/Products.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teebay-frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/teebay-frontend/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

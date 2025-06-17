@@ -51,5 +51,6 @@ An online buying, selling, and renting commodities store. Users can list their p
    ```bash
    npm install
    npm run dev
-   Go to localhost:{port}/ to go to the index page of the application
+   
+5. Go to localhost:{port}/ to go to the index page of the application
 
